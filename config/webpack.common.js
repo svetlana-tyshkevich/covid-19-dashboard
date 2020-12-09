@@ -63,7 +63,7 @@ module.exports = {
     new CleanWebpackPlugin(),
 
     new HtmlWebpackPlugin({
-      title: 'English for kids',
+      title: 'COVID-19 Dashboard',
       favicon: paths.src + '/images/favicon.ico',
       template: paths.src + '/template.html',
       filename: 'index.html',
