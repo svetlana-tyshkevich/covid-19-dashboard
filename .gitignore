@@ -1,3 +1,16 @@
+# tmp, editor & OS files
+.tmp
+*.swo
+*.swp
+*.swn
+*.swm
+.DS_Store
+*#
+*~
+.idea
+*sublime*
+nbproject
+
 # Logs
 logs
 *.log
