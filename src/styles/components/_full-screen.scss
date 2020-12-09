@@ -1,0 +1,39 @@
+.component.expanded {
+  position: absolute;
+  width: calc(100vw - 30px);
+  max-width: calc(100vw - 30px);
+  height: calc(100vh - 100px);
+  left: 15px;
+  top: 15px;
+  z-index: 10;
+}
+
+.resize-button {
+  display: none;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-image: url('../images/button-expand.svg');
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: $second-black;
+  border: 1px solid $white-transp;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $dark-gray;
+  }
+
+  &.pressed {
+    background-image: url('../images/button-minimize.svg');
+  }
+}
+
+.component:hover {
+  .resize-button {
+    display: block;
+  }
+}

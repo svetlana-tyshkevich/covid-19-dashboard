@@ -1,4 +1,5 @@
 import './styles/index.scss';
+import './js/resize';
 
 // Test import of a JavaScript function
 // import example from './js/example';
