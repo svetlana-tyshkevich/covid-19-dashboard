@@ -8,6 +8,7 @@
   display: flex;
   align-items: stretch;
   justify-content: space-between;
+  position: relative;
 }
 
 .left__side {
@@ -42,7 +43,7 @@
   .grid {
     flex-wrap: wrap;
   }
-  
+
   .middle {
     order: 1;
     max-width: 100%;

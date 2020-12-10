@@ -1,14 +1,15 @@
-@import "./variables";
-@import "./mixins";
-@import "./header";
-@import "./grid";
-@import "./left-side/search";
-@import "./left-side/country__table";
-@import "./left-side/last__update";
-@import "./middle/map";
-@import "./middle/information";
-@import "./right-side/bars";
-@import "./right-side/graph";
+@import './variables';
+@import './mixins';
+@import './header';
+@import './grid';
+@import './left-side/search';
+@import './left-side/country__table';
+@import './left-side/last__update';
+@import './middle/map';
+@import './middle/information';
+@import './right-side/bars';
+@import './right-side/graph';
+@import './components/full-screen';
 
 *,
 *::before,
@@ -36,5 +37,9 @@ body {
 // Here some interlayers for dalete later
 .interlayer {
   height: 100%;
-  @include flex-center
+  @include flex-center;
+}
+
+.component {
+  position: relative;
 }

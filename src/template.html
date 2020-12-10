@@ -6,12 +6,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
     <title><%= htmlWebpackPlugin.options.title %></title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="app" class="app">
-
       <header class="header">
         <div class="header__inner">
           <h1>COVID-19 Dashboard</h1>
@@ -20,57 +22,54 @@
 
       <section class="grid">
         <div class="left__side">
-
           <div class="search">
             <div class="interlayer">
-              <input type="text" placeholder="Search...">
+              <input type="text" placeholder="Search..." />
               <button></button>
             </div>
           </div>
 
-          <div class="country__table">
+          <div class="country__table component">
             <div class="interlayer">Place for table</div>
+            <button class="resize-button"></button>
           </div>
 
           <div class="last__update">
             <div class="interlayer">Place for UPD</div>
           </div>
-
         </div>
 
         <div class="middle">
-
-          <div id="map" class="map">
+          <div id="map" class="map component">
             <div class="interlayer">Place for map</div>
+            <button class="resize-button"></button>
           </div>
 
-          <div class="information">
+          <div class="information component">
             <div class="interlayer">Place for some info</div>
+            <button class="resize-button"></button>
           </div>
-
         </div>
 
         <div class="right__side">
-
           <div class="bars">
-
-            <div class="left__bar">
+            <div class="left__bar component">
               <div class="interlayer">Place for bar</div>
+              <button class="resize-button"></button>
             </div>
 
-            <div class="right__bar">
+            <div class="right__bar component">
               <div class="interlayer">Place for bar</div>
+              <button class="resize-button"></button>
             </div>
-
           </div>
 
-          <div id="graph" class="graph">
+          <div id="graph" class="graph component">
             <div class="interlayer">Place for graph</div>
+            <button class="resize-button"></button>
           </div>
-
         </div>
       </section>
-
     </div>
   </body>
 </html>
