@@ -4,14 +4,13 @@ export default class Wrap {
     this.resizeButton = this.wrap.querySelector('.resize-button');
   }
 
-  fold = () => {
-    this.resizeButton.addEventListener('click', (e) => {
-      e.currentTarget.parentNode.classList.toggle('expanded');
-      e.currentTarget.classList.toggle('pressed');
-    });
-  };
+  fold = (event) => {
+    const { target } = event;
+    target.parentNode.classList.toggle('expanded');
+    target.classList.toggle('pressed');
+  }
 
   init = () => {
-    this.fold();
+    this.resizeButton.addEventListener('click', this.fold);
   }
 }
