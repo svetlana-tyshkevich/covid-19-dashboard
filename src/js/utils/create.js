@@ -1,27 +1,29 @@
-export default function create(element) {
+export default function create({
+  tagName, classNames, children, parent, dataAttr,
+}) {
   let htmlElement = null;
-  if (element.tagName) {
-    htmlElement = document.createElement(element.tagName);
+  if (tagName) {
+    htmlElement = document.createElement(tagName);
   } else {
-    throw new Error(`Can't create ${element.tagName}, give a proper tag name!`);
+    throw new Error(`Can't create ${tagName}, give a proper tag name!`);
   }
 
-  if (element.children && Array.isArray(element.children)) {
-    element.children.forEach((childElement) => childElement && htmlElement.append(childElement));
-  } else if (element.children && typeof element.children === 'object') {
-    htmlElement.appendChild(element.children);
-  } else if (element.children && typeof element.children === 'string') {
-    htmlElement.innerHTML = element.children;
+  if (children && Array.isArray(children)) {
+    children.forEach((childElement) => childElement && htmlElement.append(childElement));
+  } else if (children && typeof children === 'object') {
+    htmlElement.appendChild(children);
+  } else if (children && typeof children === 'string') {
+    htmlElement.innerHTML = children;
   }
 
-  if (element.parent) {
-    element.parent.append(htmlElement);
+  if (parent) {
+    parent.append(htmlElement);
   }
 
-  if (element.classNames) htmlElement.classList.add(...element.classNames.split(' '));
+  if (classNames) htmlElement.classList.add(...classNames.split(' '));
 
-  if (element.dataAttr && element.dataAttr.length) {
-    element.dataAttr.forEach(([attrName, attrValue]) => {
+  if (dataAttr && dataAttr.length) {
+    dataAttr.forEach(([attrName, attrValue]) => {
       if (attrName === '') {
         htmlElement.setAttribute(attrName, '');
       }
