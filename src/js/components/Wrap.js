@@ -1,16 +1,27 @@
+import create from '../utils/create';
+
 export default class Wrap {
   constructor(cssClass) {
     this.wrap = document.querySelector(`.${cssClass}`);
+    this.wrap.classList.add('component');
+
     this.resizeButton = this.wrap.querySelector('.resize-button');
+
+    this.loader = create({
+      tagName: 'div',
+      classNames: 'loader',
+      children: '<div></div><div></div><div></div><div></div>',
+    });
+
+    this.wrap.append(this.loader);
   }
 
-  fold = (event) => {
-    const { target } = event;
-    target.parentNode.classList.toggle('expanded');
-    target.classList.toggle('pressed');
+  fold = () => {
+    this.wrap.classList.toggle('expanded');
+    this.resizeButton.classList.toggle('pressed');
   }
 
-  init = () => {
-    this.resizeButton.addEventListener('click', this.fold);
+  loaded = () => {
+    this.loader.parentNode.removeChild(this.loader);
   }
 }

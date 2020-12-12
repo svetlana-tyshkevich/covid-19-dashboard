@@ -3,6 +3,7 @@ import create from './utils/create';
 import model from './model/model';
 
 import Example from './components/example';
+import Table from './components/Table';
 
 export default class App {
   constructor() {
@@ -10,20 +11,21 @@ export default class App {
 
     this.model = model;
 
-    this.exp = new Example(); // Компонент для примера, который ждет пока ему придут данные
+    this.exp = new Example();
+    this.table = new Table('table');
+    this.table.init();
 
     this.model.listen(() => {
-      const dayOneData = this.model.getStatus();
-      this.exp.update(dayOneData); // Тут мы ему говорим вот данные, кушай
+      const countries = this.model.getCountriesStatus();
+      this.table.update(countries);
     });
-
-    const example = {
-      country: 'south-africa',
-      cases: 'deaths',
-      monthFrom: 3,
-      monthTo: 4,
-    };
-    this.model.requestStatus(example);
+    // const example = {
+    //   country: 'south-africa',
+    //   cases: 'deaths',
+    //   monthFrom: 3,
+    //   monthTo: 4,
+    // };
+    // this.model.requestStatus(example);
     this.model.requestData();
   }
 
