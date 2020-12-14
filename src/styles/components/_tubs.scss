@@ -1,0 +1,29 @@
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+
+  position: absolute;
+  bottom: -26px;
+  left: -1px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px 5px;
+  font-size: .88rem;
+
+  background: $second-black;
+  border: 1px solid $white-transp;
+  transition: all .3s linear;
+  cursor: pointer;
+
+  &.active, &:hover {
+    background: $light-black;
+    transition: all .3s linear;
+  }
+}

@@ -3,14 +3,17 @@
   align-items: center;
   justify-content: center;
 
-  flex-basis: 80%;
+  flex-basis: calc(80% - 30px);
 
   padding: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 
   background: $second-black;
   border: 1px solid $white-transp;
 }
+// С табами только печаль немного, тк тут приложение адаптируется под высоту экрана,
+// и нужно каждому компоненту +- свою высоту давать, табы автоматом воткнуть не получается,
+// и надо будет каждому компоненту отдельно в стилях отбирать 30px от высоты и превращать в margin( лучше пока ничего не придумал
 
 .table__inner {
   width: 100%;

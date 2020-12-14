@@ -2,7 +2,6 @@ import create from './utils/create';
 
 import model from './model/model';
 
-import Example from './components/example';
 import Table from './components/Table';
 
 export default class App {
@@ -11,7 +10,6 @@ export default class App {
 
     this.model = model;
 
-    this.exp = new Example();
     this.table = new Table('table');
     this.table.init();
 

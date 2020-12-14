@@ -1,8 +1,7 @@
-// import create from '../utils/create';
 import create from '../utils/create';
-import Wrap from './Wrap';
+import BaseComponent from './BaseComponent';
 
-export default class Table extends Wrap {
+export default class Table extends BaseComponent {
   constructor(className) {
     super(className);
     this.list = create({ tagName: 'ul', classNames: `${className}__inner` });
@@ -17,6 +16,7 @@ export default class Table extends Wrap {
     this.dataList.forEach((element) => {
       const { Country, CountryCode } = element;
       let casesOf = '';
+
       if (cases === 'confirmed') {
         casesOf = element.TotalConfirmed;
       } else if (cases === 'recovered') {
@@ -24,22 +24,27 @@ export default class Table extends Wrap {
       } else {
         casesOf = element.TotalRecovered;
       }
+
       const urlOfImg = `https://www.countryflags.io/${CountryCode.toLowerCase()}/flat/32.png`;
+
       const img = create({
         tagName: 'img',
         dataAttr: [['src', urlOfImg]],
       });
+
       const imgWrap = create({
         tagName: 'div',
         classNames: 'list__item-img',
         children: img,
       });
+
       const listItem = create({
         tagName: 'li',
         classNames: 'list__item',
         children: [imgWrap, Country, casesOf],
         dataAttr: [['country', CountryCode]],
       });
+
       this.list.append(listItem);
     });
   }
@@ -59,6 +64,7 @@ export default class Table extends Wrap {
   }
 
   init = () => {
+    this.addTab('Confermed', 'confermd');
     this.wrap.append(this.list);
     this.wrap.addEventListener('click', this.handleEvent);
   }
