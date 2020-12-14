@@ -12,13 +12,18 @@ export default class BaseComponent {
       classNames: 'loader',
       children: '<div></div><div></div><div></div><div></div>',
     });
+    this.loaderWrap = create({
+      tagName: 'div',
+      classNames: 'loader__wrap',
+      children: this.loader,
+    });
 
     this.tabs = create({
       tagName: 'div',
       classNames: 'tabs',
     });
 
-    this.wrap.append(this.loader);
+    this.wrap.append(this.loaderWrap);
   }
 
   fold = () => {
@@ -27,7 +32,10 @@ export default class BaseComponent {
   }
 
   loaded = () => {
-    this.loader.parentNode.removeChild(this.loader);
+    setTimeout(() => {
+      this.loaderWrap.innerHTML = '';
+      this.loaderWrap.parentNode.removeChild(this.loaderWrap);
+    }, 0);
   }
 
   addTab = (name, attr) => {

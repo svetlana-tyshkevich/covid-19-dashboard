@@ -1,4 +1,4 @@
-.table {
+.list {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,10 +15,33 @@
 // и нужно каждому компоненту +- свою высоту давать, табы автоматом воткнуть не получается,
 // и надо будет каждому компоненту отдельно в стилях отбирать 30px от высоты и превращать в margin( лучше пока ничего не придумал
 
-.table__inner {
+.list__inner {
   width: 100%;
   max-height: 80vh;
   overflow: auto;
+  padding-right: 3px;
+}
+
+.list__inner::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+
+.list__inner::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+  background-color: $white-transp;
+  transition: all .3s linear;
+}
+
+.list__inner:hover::-webkit-scrollbar-thumb {
+  background-color: $white;
+  transition: all .3s linear;
+}
+
+.list__title {
+  text-align: center;
+  padding: 10px 0;
+  font-weight: 500;
 }
 
 .list__item {
@@ -40,5 +63,19 @@
       max-width: 100%;
       display: block;
     }
+  }
+}
+
+.list__item-cases {
+  margin: 0 0 0 auto;
+
+  &.confirmed {
+    color: $blue;
+  }
+  &.recovered {
+    color: $green;
+  }
+  &.deaths {
+    color: $red;
   }
 }

@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
 
   position: absolute;
   bottom: -26px;
@@ -21,9 +20,23 @@
   border: 1px solid $white-transp;
   transition: all .3s linear;
   cursor: pointer;
+}
 
+[data-tab="confirmed"] {
   &.active, &:hover {
-    background: $light-black;
+    background: $blue;
+    transition: all .3s linear;
+  }
+}
+[data-tab="recovered"] {
+  &.active, &:hover {
+    background: $green;
+    transition: all .3s linear;
+  }
+}
+[data-tab="deaths"] {
+  &.active, &:hover {
+    background: $red;
     transition: all .3s linear;
   }
 }

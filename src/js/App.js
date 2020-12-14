@@ -2,7 +2,7 @@ import create from './utils/create';
 
 import model from './model/model';
 
-import Table from './components/Table';
+import List from './components/List';
 
 export default class App {
   constructor() {
@@ -10,12 +10,12 @@ export default class App {
 
     this.model = model;
 
-    this.table = new Table('table');
-    this.table.init();
+    this.list = new List('list');
+    this.list.init();
 
     this.model.listen(() => {
       const countries = this.model.getCountriesStatus();
-      this.table.update(countries);
+      this.list.update(countries);
     });
     // const example = {
     //   country: 'south-africa',

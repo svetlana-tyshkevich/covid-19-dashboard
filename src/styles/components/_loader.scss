@@ -1,4 +1,19 @@
 // Taken from https://loading.io/css/
+.loader__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: $second-black;
+}
+
 .loader {
   display: inline-block;
   position: relative;
@@ -12,10 +27,10 @@
   width: 64px;
   height: 64px;
   margin: 8px;
-  border: 8px solid #fff;
+  border: 8px solid $white;
   border-radius: 50%;
   animation: loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
+  border-color: $white transparent transparent transparent;
 }
 .loader div:nth-child(1) {
   animation-delay: -0.45s;
