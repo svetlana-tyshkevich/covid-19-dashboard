@@ -19,7 +19,7 @@ const model = {
         });
     });
   },
-  requestStatus({
+  requestStatusPerCountry({
     country, cases, monthFrom, monthTo,
   }) {
     if (!cases.match(/confirmed|recovered|deaths/)) {
@@ -36,6 +36,18 @@ const model = {
         }
 
         const name = 'period';
+        model.setData(data, name);
+      });
+  },
+  requestWorldStatus() {
+    const day = new Date().getDate();
+    const month = new Date().getMonth();
+    const year = new Date().getFullYear();
+    const url = `https://api.covid19api.com/world?from=2020-02-25T00:00:00Z&to=${year}-${month}-${day}T00:00:00Z`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        const name = 'allStatus';
         model.setData(data, name);
       });
   },
@@ -65,7 +77,7 @@ const model = {
     throw new Error('Invalide data!');
   },
   getCountriesStatus() {
-    return model.data.summary.Countries;
+    return model?.data?.summary?.Countries || [];
   },
   getAllSummaryData() {
     return model.data.summary;
@@ -82,6 +94,9 @@ const model = {
   },
   getStatus() {
     return model.data.period;
+  },
+  getWorldStatus() {
+    return model.data.allStatus || [];
   },
 };
 

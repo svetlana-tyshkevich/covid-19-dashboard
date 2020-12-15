@@ -12,15 +12,22 @@ export default class App {
     this.model = model;
 
     this.list = new List('list');
-    this.list.init();
 
     this.chart = new ChartBoard('chart');
-    this.chart.init();
 
     this.model.listen(() => {
       const countries = this.model.getCountriesStatus();
-      this.list.update(countries);
+      if (countries && countries.length > 0) {
+        this.list.update(countries);
+      }
     });
+    this.model.listen(() => {
+      const global = this.model.getWorldStatus();
+      if (global && global.length > 0) {
+        this.chart.update(global);
+      }
+    });
+
     // const example = {
     //   country: 'south-africa',
     //   cases: 'deaths',
@@ -29,6 +36,7 @@ export default class App {
     // };
     // this.model.requestStatus(example);
     this.model.requestData();
+    this.model.requestWorldStatus();
   }
 
   append = () => this.element;

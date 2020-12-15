@@ -5,10 +5,8 @@ export default class List extends BaseComponent {
   constructor(className) {
     super(className);
     this.list = create({ tagName: 'ul', classNames: `${className}__inner` });
-  }
 
-  sort = (array, parametr) => {
-    array.sort((a, b) => b[parametr] - a[parametr]);
+    this.isStarted = false;
   }
 
   capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -86,12 +84,6 @@ export default class List extends BaseComponent {
     return fullList;
   }
 
-  update = (data) => {
-    this.dataList = [...data];
-    this.createList('confirmed');
-    this.loaded();
-  }
-
   handleEvent = (event) => {
     const { target } = event;
     const [confirmed, recovered, deaths] = this.tabItems;
@@ -118,6 +110,7 @@ export default class List extends BaseComponent {
   }
 
   init = () => {
+    this.isStarted = true;
     this.addTab('Confirmed', 'confirmed');
     this.addTab('Recovered', 'recovered');
     this.addTab('Deaths', 'deaths');
@@ -126,5 +119,14 @@ export default class List extends BaseComponent {
     confirmed.classList.add('active');
 
     this.wrap.addEventListener('click', this.handleEvent);
+  }
+
+  update = (data) => {
+    this.dataList = [...data];
+    if (!this.isStarted) {
+      this.init();
+      this.createList('confirmed');
+      this.loaded();
+    }
   }
 }
