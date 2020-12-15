@@ -11,6 +11,9 @@ const model = {
       fetch(url)
         .then((res) => res.json())
         .then((data) => {
+          if (data.Message === 'Caching in progress') {
+            throw new Error('Cannot get data!');
+          }
           const name = url.split('/').pop();
           model.setData(data, name);
         });
@@ -43,18 +46,12 @@ const model = {
     this.observers.forEach((notify) => notify());
   },
   getCountryList() {
-    const allList = model.data.summary.Countries;
-    return (allList.reduce((array, element) => {
-      array.push(element.Country);
-      return array;
-    }, []));
+    const { Countries } = model.data.summary;
+    return Countries.map((element) => element.Country);
   },
   getSlugList() {
-    const allList = model.data.summary.Countries;
-    return (allList.reduce((array, element) => {
-      array.push(element.Slug);
-      return array;
-    }, []));
+    const { Countries } = model.data.summary;
+    return Countries.map((element) => element.Slug);
   },
   getDataByCountry(country) {
     if (typeof country !== 'string') {
@@ -67,8 +64,11 @@ const model = {
     }
     throw new Error('Invalide data!');
   },
+  getCountriesStatus() {
+    return model.data.summary.Countries;
+  },
   getAllSummaryData() {
-    return model.data;
+    return model.data.summary;
   },
   appendNull(num) {
     return num < 10 ? `0${num}` : `${num}`;

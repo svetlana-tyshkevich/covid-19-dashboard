@@ -3,13 +3,15 @@
 @import './header';
 @import './grid';
 @import './left-side/search';
-@import './left-side/country__table';
+@import './left-side/list';
 @import './left-side/last__update';
 @import './middle/map';
 @import './middle/information';
 @import './right-side/bars';
 @import './right-side/graph';
 @import './components/full-screen';
+@import './components/loader';
+@import './components/tabs';
 
 *,
 *::before,
