@@ -3,6 +3,7 @@ import create from './utils/create';
 import model from './model/model';
 
 import List from './components/List';
+import ChartBoard from './components/Chart';
 
 export default class App {
   constructor() {
@@ -12,6 +13,9 @@ export default class App {
 
     this.list = new List('list');
     this.list.init();
+
+    this.chart = new ChartBoard('chart');
+    this.chart.init();
 
     this.model.listen(() => {
       const countries = this.model.getCountriesStatus();
