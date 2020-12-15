@@ -3,8 +3,9 @@ import create from './utils/create';
 
 import model from './model/model';
 
-import Example from './components/example';
 import WorldMap from './components/Map';
+
+import List from './components/List';
 
 export default class App {
   constructor() {
@@ -12,14 +13,14 @@ export default class App {
 
     this.model = model;
 
-    this.exp = new Example(); // Компонент для примера, который ждет пока ему придут данные
+    this.list = new List('list');
+    this.list.init();
+
     this.map = new WorldMap('map');
-    this.map.init();
 
     this.model.listen(() => {
-      // const dayOneData = this.model.getStatus();
-      // this.exp.update(dayOneData); // Тут мы ему говорим вот данные, кушай
       const countries = this.model.getCountriesStatus();
+      this.list.update(countries);
       this.map.update(countries);
     });
 
