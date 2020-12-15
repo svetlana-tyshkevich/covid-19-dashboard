@@ -2,13 +2,13 @@
 /* eslint-disable no-undef */
 import model from '../model/model';
 import create from '../utils/create';
-import Wrap from '../Wrap';
+import BaseComponent from './BaseComponent';
 import polygones from '../utils/polygones.json';
 
-export default class WorldMap extends Wrap {
+export default class WorldMap extends BaseComponent {
   constructor(className) {
     super(className);
-    this.mapBox = create({ tagName: 'div', classNames: `${className}__inner` });
+    this.mapBox = create({ tagName: 'div', classNames: `${className}__inner`, dataAttr: ['id', 'mapBox'] });
     this.model = model;
   }
 
@@ -63,6 +63,7 @@ export default class WorldMap extends Wrap {
   update = (data) => {
     this.dataList = [...data];
     this.createMap();
+    this.loaded();
   };
 
   // init = () => {
