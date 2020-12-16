@@ -66,6 +66,19 @@ const model = {
     }
     throw new Error('Invalide data!');
   },
+  getDataByCountryCode(countryCode) {
+    if (typeof countryCode !== 'string') {
+      throw new TypeError('Type of argument must be string!');
+    }
+    const { Countries } = model.data.summary;
+    const requiredElement = Countries.find(
+      ({ CountryCode }) => countryCode === CountryCode,
+    );
+    if (requiredElement) {
+      return requiredElement;
+    }
+    throw new Error('Invalide data!');
+  },
   getCountriesStatus() {
     return model.data.summary.Countries;
   },
