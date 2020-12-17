@@ -41,17 +41,6 @@ const model = {
         model.setData(data, name);
       });
   },
-  getDataByCountry(country) {
-    if (typeof country !== 'string') {
-      throw new TypeError('Type of argument must be string!');
-    }
-    const { Countries } = model.data.summary;
-    const requiredElement = Countries.find(({ Country }) => country === Country);
-    if (requiredElement) {
-      return requiredElement;
-    }
-    throw new Error('Invalide data!');
-  },
   appendNull(num) {
     return num < 10 ? `0${num}` : `${num}`;
   },
@@ -59,14 +48,10 @@ const model = {
     return model?.data?.summary || [];
   },
   getDate() {
-    const date = new Date(model.data.summary.Date);
-    const day = this.appendNull(date.getDate());
-    const month = this.appendNull(date.getMonth() + 1);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+
   },
   getStatus() {
-    return model?.data?.period;
+
   },
   getWorldStatus() {
     return model?.data?.allStatus || [];

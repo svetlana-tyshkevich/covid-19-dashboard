@@ -51,10 +51,6 @@ export default class ChartBoard extends BaseComponent {
     chart.cursor = new am4charts.XYCursor();
     chart.cursor.xAxis = dateAxis;
 
-    // const scrollbarX = new am4core.Scrollbar();
-    // scrollbarX.marginBottom = 20;
-    // chart.scrollbarX = scrollbarX;
-
     this.wrap.append(this.chart);
   }
 

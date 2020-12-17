@@ -20,11 +20,11 @@ export default class List extends BaseComponent {
     const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
     this.list.append(title);
     if (cases === 'confirmed') {
-      this.sortedData = this.sort(this.dataList, 'TotalConfirmed');
+      this.sortedData = this.sort(this.dataList, 'cases');
     } else if (cases === 'deaths') {
-      this.sortedData = this.sort(this.dataList, 'TotalDeaths');
+      this.sortedData = this.sort(this.dataList, 'deaths');
     } else {
-      this.sortedData = this.sort(this.dataList, 'TotalRecovered');
+      this.sortedData = this.sort(this.dataList, 'recovered');
     }
 
     const fullList = this.createListItems(this.sortedData, cases);
@@ -35,15 +35,14 @@ export default class List extends BaseComponent {
   createListItems = (list, cases) => {
     const fullList = [];
     list.forEach((element) => {
-      const { Country, CountryCode } = element;
       let casesOf = '';
 
       if (cases === 'confirmed') {
-        casesOf = element.TotalConfirmed;
+        casesOf = element.cases;
       } else if (cases === 'deaths') {
-        casesOf = element.TotalDeaths;
+        casesOf = element.deaths;
       } else {
-        casesOf = element.TotalRecovered;
+        casesOf = element.recovered;
       }
 
       const casesItem = create({
@@ -52,7 +51,7 @@ export default class List extends BaseComponent {
         children: `${casesOf}`,
       });
 
-      const urlOfImg = `https://www.countryflags.io/${CountryCode.toLowerCase()}/flat/32.png`;
+      const urlOfImg = element.countryInfo.flag;
 
       const img = create({
         tagName: 'img',
@@ -68,14 +67,14 @@ export default class List extends BaseComponent {
       const countryItem = create({
         tagName: 'span',
         classNames: 'list__item-country',
-        children: Country,
+        children: element.country,
       });
 
       const listItem = create({
         tagName: 'li',
         classNames: 'list__item',
         children: [imgWrap, countryItem, casesItem],
-        dataAttr: [['country', CountryCode]],
+        dataAttr: [['country', element.countryInfo.iso2]],
       });
 
       fullList.push(listItem);
@@ -122,7 +121,6 @@ export default class List extends BaseComponent {
 
   update = (data) => {
     this.dataList = [...data];
-    // console.log(this.dataList);
     if (!this.isStarted) {
       this.init();
       this.createList('confirmed');
