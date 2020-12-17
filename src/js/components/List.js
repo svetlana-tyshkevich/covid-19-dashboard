@@ -5,10 +5,8 @@ export default class List extends BaseComponent {
   constructor(className) {
     super(className);
     this.list = create({ tagName: 'ul', classNames: `${className}__inner` });
-  }
 
-  sort = (array, parametr) => {
-    array.sort((a, b) => b[parametr] - a[parametr]);
+    this.isStarted = false;
   }
 
   capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -21,16 +19,15 @@ export default class List extends BaseComponent {
     this.list.innerHTML = '';
     const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
     this.list.append(title);
-
     if (cases === 'confirmed') {
-      this.sort(this.dataList, 'TotalConfirmed');
-    } else if (cases === 'recovered') {
-      this.sort(this.dataList, 'TotalDeaths');
+      this.sortedData = this.sort(this.dataList, 'cases');
+    } else if (cases === 'deaths') {
+      this.sortedData = this.sort(this.dataList, 'deaths');
     } else {
-      this.sort(this.dataList, 'TotalRecovered');
+      this.sortedData = this.sort(this.dataList, 'recovered');
     }
 
-    const fullList = this.createListItems(this.dataList, cases);
+    const fullList = this.createListItems(this.sortedData, cases);
     fullList.forEach((el) => this.list.append(el));
     this.wrap.append(this.list);
   }
@@ -38,15 +35,14 @@ export default class List extends BaseComponent {
   createListItems = (list, cases) => {
     const fullList = [];
     list.forEach((element) => {
-      const { Country, CountryCode } = element;
       let casesOf = '';
 
       if (cases === 'confirmed') {
-        casesOf = element.TotalConfirmed;
-      } else if (cases === 'recovered') {
-        casesOf = element.TotalDeaths;
+        casesOf = element.cases;
+      } else if (cases === 'deaths') {
+        casesOf = element.deaths;
       } else {
-        casesOf = element.TotalRecovered;
+        casesOf = element.recovered;
       }
 
       const casesItem = create({
@@ -55,7 +51,7 @@ export default class List extends BaseComponent {
         children: `${casesOf}`,
       });
 
-      const urlOfImg = `https://www.countryflags.io/${CountryCode.toLowerCase()}/flat/32.png`;
+      const urlOfImg = element.countryInfo.flag;
 
       const img = create({
         tagName: 'img',
@@ -71,25 +67,19 @@ export default class List extends BaseComponent {
       const countryItem = create({
         tagName: 'span',
         classNames: 'list__item-country',
-        children: Country,
+        children: element.country,
       });
 
       const listItem = create({
         tagName: 'li',
         classNames: 'list__item',
         children: [imgWrap, countryItem, casesItem],
-        dataAttr: [['country', CountryCode]],
+        dataAttr: [['country', element.countryInfo.iso2]],
       });
 
       fullList.push(listItem);
     });
     return fullList;
-  }
-
-  update = (data) => {
-    this.dataList = [...data];
-    this.createList('confirmed');
-    this.loaded();
   }
 
   handleEvent = (event) => {
@@ -118,6 +108,7 @@ export default class List extends BaseComponent {
   }
 
   init = () => {
+    this.isStarted = true;
     this.addTab('Confirmed', 'confirmed');
     this.addTab('Recovered', 'recovered');
     this.addTab('Deaths', 'deaths');
@@ -126,5 +117,14 @@ export default class List extends BaseComponent {
     confirmed.classList.add('active');
 
     this.wrap.addEventListener('click', this.handleEvent);
+  }
+
+  update = (data) => {
+    this.dataList = [...data];
+    if (!this.isStarted) {
+      this.init();
+      this.createList('confirmed');
+      this.loaded();
+    }
   }
 }

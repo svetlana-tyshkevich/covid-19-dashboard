@@ -3,6 +3,7 @@ import create from './utils/create';
 import model from './model/model';
 
 import List from './components/List';
+import ChartBoard from './components/Chart';
 
 export default class App {
   constructor() {
@@ -11,20 +12,24 @@ export default class App {
     this.model = model;
 
     this.list = new List('list');
-    this.list.init();
+
+    this.chart = new ChartBoard('chart');
 
     this.model.listen(() => {
-      const countries = this.model.getCountriesStatus();
-      this.list.update(countries);
+      const countries = this.model.getSummaryData();
+      if (countries && countries.length > 0) {
+        this.list.update(countries);
+      }
     });
-    // const example = {
-    //   country: 'south-africa',
-    //   cases: 'deaths',
-    //   monthFrom: 3,
-    //   monthTo: 4,
-    // };
-    // this.model.requestStatus(example);
-    this.model.requestData();
+    this.model.listen(() => {
+      const global = this.model.getWorldStatus();
+      if (global && global.length > 0) {
+        this.chart.update(global);
+      }
+    });
+
+    this.model.requestSummaryData();
+    this.model.requestWorldStatus({ daysBeforeNow: 90 });
   }
 
   append = () => this.element;
