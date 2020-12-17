@@ -1,5 +1,6 @@
 const model = {
   data: {},
+  state: {},
   observers: [],
   setData(data, key) {
     this.data[key] = data;
