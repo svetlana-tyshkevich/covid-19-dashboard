@@ -27,7 +27,9 @@ export default class BaseComponent {
   }
 
   sort = (array, parametr) => {
-    array.sort((a, b) => b[parametr] - a[parametr]);
+    const newArray = [...array];
+    newArray.sort((a, b) => b[parametr] - a[parametr]);
+    return newArray;
   }
 
   fold = () => {

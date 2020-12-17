@@ -1,70 +1,61 @@
-import Chart from 'chart.js';
+import * as am4core from '@amcharts/amcharts4/core';
+import * as am4charts from '@amcharts/amcharts4/charts';
+import amThem from '@amcharts/amcharts4/themes/kelly';
+import amAnimation from '@amcharts/amcharts4/themes/animated';
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
 
 export default class ChartBoard extends BaseComponent {
   constructor(cssClass) {
     super(cssClass);
-    this.canvas = create({
-      tagName: 'canvas',
-      classNames: 'chart',
-    });
-    this.ctx = this.canvas.getContext('2d');
-    this.wrap.append(this.canvas);
-
+    this.chart = create({ tagName: 'div', classNames: 'chart__box' });
     this.isStarted = false;
   }
 
-  settings = () => {
-    const data = this.data.map((el) => el.TotalConfirmed);
-    const config = {
-      type: 'line',
-      data: {
-        labels: [...data],
-        datasets: [this.changeDatasets()],
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-            },
-          }],
-        },
-      },
-    };
-    return config;
-  }
-
-  changeDatasets = () => {
-    this.sort(this.data, 'TotalConfirmed');
-    const data = this.data.map((el) => el.TotalConfirmed);
-    const dataset = {
-      label: 'Confirmed: ',
-      data: [...data],
-      backgroundColor: [
-        // 'rgba(255, 99, 132, 0.2)',
-        // 'rgba(54, 162, 235, 0.2)',
-        // 'rgba(255, 206, 86, 0.2)',
-        // 'rgba(75, 192, 192, 0.2)',
-        // 'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)',
-      ],
-      borderColor: [
-        // 'rgba(255, 99, 132, 1)',
-        // 'rgba(54, 162, 235, 1)',
-        // 'rgba(255, 206, 86, 1)',
-        // 'rgba(75, 192, 192, 1)',
-        // 'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)',
-      ],
-      borderWidth: 1,
-    };
-    return dataset;
-  }
-
   createChart = () => {
-    this.chart = new Chart(this.ctx, this.settings());
+    am4core.useTheme(amThem);
+    am4core.useTheme(amAnimation);
+
+    this.sortedDate = this.sort(this.data, 'TotalConfirmed');
+
+    const chart = am4core.create(this.chart, am4charts.XYChart);
+    chart.paddingRight = 20;
+
+    const data = [];
+    // console.log(this.sortedDate.map((el) => el.TotalConfirmed));
+    let visits = 10;
+    for (let i = 1; i < 50000; i += 1) {
+      visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+      data.push({ date: new Date(2018, 0, i), value: visits });
+    }
+
+    chart.data = data;
+
+    const dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis.renderer.grid.template.location = 0;
+    dateAxis.minZoomCount = 5;
+
+    // this makes the data to be grouped
+    dateAxis.groupData = true;
+    dateAxis.groupCount = 500;
+
+    chart.yAxes.push(new am4charts.ValueAxis());
+
+    const series = chart.series.push(new am4charts.LineSeries());
+    series.dataFields.dateX = 'date';
+    series.dataFields.valueY = 'value';
+    series.tooltipText = '{valueY}';
+    series.tooltip.pointerOrientation = 'vertical';
+    series.tooltip.background.fillOpacity = 0.5;
+
+    chart.cursor = new am4charts.XYCursor();
+    chart.cursor.xAxis = dateAxis;
+
+    const scrollbarX = new am4core.Scrollbar();
+    scrollbarX.marginBottom = 20;
+    chart.scrollbarX = scrollbarX;
+
+    this.wrap.append(this.chart);
   }
 
   handleEvent = (event) => {

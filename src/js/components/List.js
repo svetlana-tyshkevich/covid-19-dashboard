@@ -19,16 +19,15 @@ export default class List extends BaseComponent {
     this.list.innerHTML = '';
     const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
     this.list.append(title);
-
     if (cases === 'confirmed') {
-      this.sort(this.dataList, 'TotalConfirmed');
+      this.sortedData = this.sort(this.dataList, 'TotalConfirmed');
     } else if (cases === 'recovered') {
-      this.sort(this.dataList, 'TotalDeaths');
+      this.sortedData = this.sort(this.dataList, 'TotalDeaths');
     } else {
-      this.sort(this.dataList, 'TotalRecovered');
+      this.sortedData = this.sort(this.dataList, 'TotalRecovered');
     }
 
-    const fullList = this.createListItems(this.dataList, cases);
+    const fullList = this.createListItems(this.sortedData, cases);
     fullList.forEach((el) => this.list.append(el));
     this.wrap.append(this.list);
   }
