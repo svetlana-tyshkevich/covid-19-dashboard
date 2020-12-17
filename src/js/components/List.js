@@ -9,23 +9,19 @@ export default class List extends BaseComponent {
     this.isStarted = false;
   }
 
-  capitalize = (string) => `${string.charAt(0).toUpperCase()}${string.slice(1)}`
-
-  createList = (cases) => {
-    if (!cases.match(/confirmed|recovered|deaths/)) {
+  checkArgument = (cases) => {
+    if (!cases.match(/cases|recovered|deaths/)) {
       throw new Error('Cases must be one of: confirmed, recovered, deaths!');
     }
+  }
+
+  createList = (cases) => {
+    this.checkArgument(cases);
 
     this.list.innerHTML = '';
     const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
     this.list.append(title);
-    if (cases === 'confirmed') {
-      this.sortedData = this.sort(this.dataList, 'cases');
-    } else if (cases === 'deaths') {
-      this.sortedData = this.sort(this.dataList, 'deaths');
-    } else {
-      this.sortedData = this.sort(this.dataList, 'recovered');
-    }
+    this.sortedData = this.sort(this.dataList, cases);
 
     const fullList = this.createListItems(this.sortedData, cases);
     fullList.forEach((el) => this.list.append(el));
@@ -33,17 +29,10 @@ export default class List extends BaseComponent {
   }
 
   createListItems = (list, cases) => {
+    this.checkArgument(cases);
     const fullList = [];
     list.forEach((element) => {
-      let casesOf = '';
-
-      if (cases === 'confirmed') {
-        casesOf = element.cases;
-      } else if (cases === 'deaths') {
-        casesOf = element.deaths;
-      } else {
-        casesOf = element.recovered;
-      }
+      const casesOf = element[cases];
 
       const casesItem = create({
         tagName: 'span',
@@ -51,11 +40,11 @@ export default class List extends BaseComponent {
         children: `${casesOf}`,
       });
 
-      const urlOfImg = element.countryInfo.flag;
+      const { flag, iso2 } = element.countryInfo;
 
       const img = create({
         tagName: 'img',
-        dataAttr: [['src', urlOfImg]],
+        dataAttr: [['src', flag]],
       });
 
       const imgWrap = create({
@@ -74,7 +63,7 @@ export default class List extends BaseComponent {
         tagName: 'li',
         classNames: 'list__item',
         children: [imgWrap, countryItem, casesItem],
-        dataAttr: [['country', element.countryInfo.iso2]],
+        dataAttr: [['country', iso2]],
       });
 
       fullList.push(listItem);
@@ -109,7 +98,7 @@ export default class List extends BaseComponent {
 
   init = () => {
     this.isStarted = true;
-    this.addTab('Confirmed', 'confirmed');
+    this.addTab('Confirmed', 'cases');
     this.addTab('Recovered', 'recovered');
     this.addTab('Deaths', 'deaths');
     this.tabItems = [...this.tabs.children];
@@ -123,7 +112,7 @@ export default class List extends BaseComponent {
     this.dataList = [...data];
     if (!this.isStarted) {
       this.init();
-      this.createList('confirmed');
+      this.createList('cases');
       this.loaded();
     }
   }

@@ -22,7 +22,7 @@
   cursor: pointer;
 }
 
-[data-tab="confirmed"] {
+[data-tab="cases"] {
   &.active, &:hover {
     background: $blue;
     transition: all .3s linear;
