@@ -17,18 +17,25 @@ export default class ChartBoard extends BaseComponent {
     am4core.useTheme(amAnimation);
 
     // this.sortedDate = this.sort(this.data, 'TotalConfirmed');
+    const { cases } = this.data;
+    const arrayFromCases = Object.keys(cases);
+    const createDate = arrayFromCases.reduce((acc, el) => {
+      const strToDate = el.split('/');
+      const [mounth, day, year] = strToDate;
+      const date = new Date(+`20${year}`, mounth, day);
+      acc.push({ data: date, value: cases[el] });
+      return acc;
+    }, []);
 
     const chart = am4core.create(this.chart, am4charts.XYChart);
     chart.paddingRight = 20;
 
-    const data = [];
-    // console.log(this.sortedDate.map((el) => el.TotalConfirmed));
-    let visits = 10;
-    for (let i = 1; i < 50000; i += 1) {
-      visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
-      data.push({ date: new Date(2018, 0, i), value: visits });
-    }
-
+    // let visits = 10;
+    // for (let i = 1; i < 50000; i += 1) {
+    //   visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+    //   data.push({ date: new Date(2018, 0, i), value: visits });
+    // }
+    const data = createDate;
     chart.data = data;
 
     const dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -63,8 +70,7 @@ export default class ChartBoard extends BaseComponent {
   }
 
   update = (data) => {
-    this.data = [...data];
-    // console.log(this.data);
+    this.data = data;
     if (!this.isStarted) {
       this.init();
       this.createChart();

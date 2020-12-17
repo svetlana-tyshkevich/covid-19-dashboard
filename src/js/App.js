@@ -23,13 +23,11 @@ export default class App {
     });
     this.model.listen(() => {
       const global = this.model.getWorldStatus();
-      if (global && global.length > 0) {
-        this.chart.update(global);
-      }
+      this.chart.update(global);
     });
 
     this.model.requestSummaryData();
-    this.model.requestWorldStatus({ daysBeforeNow: 90 });
+    this.model.requestWorldStatus();
   }
 
   append = () => this.element;

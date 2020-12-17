@@ -32,8 +32,12 @@ const model = {
         model.setData(data, name);
       });
   },
-  requestWorldStatus({ daysBeforeNow }) {
-    const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${daysBeforeNow}`;
+  requestWorldStatus() {
+    const today = new Date();
+    const formDate = new Date('2020-01-22T00:00:00.000Z');
+    const difference = formDate > today ? formDate - today : today - formDate;
+    const diffDays = Math.floor(difference / (1000 * 3600 * 24));
+    const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${diffDays}`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
