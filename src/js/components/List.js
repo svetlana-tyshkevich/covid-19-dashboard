@@ -89,6 +89,7 @@ export default class List extends BaseComponent {
   tabListener = (target) => {
     if (!target.closest('.active')) {
       this.createList(target.dataset.tab);
+      this.setState('case', target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
       el.classList.remove('active');

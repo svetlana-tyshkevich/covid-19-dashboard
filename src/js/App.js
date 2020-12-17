@@ -1,4 +1,5 @@
 import create from './utils/create';
+// import * as objectUtils from './utils/objectUtils';
 
 import model from './model/model';
 
@@ -20,10 +21,12 @@ export default class App {
       if (countries && countries.length > 0) {
         this.list.update(countries);
       }
-    });
-    this.model.listen(() => {
+
       const global = this.model.getWorldStatus();
       this.chart.update(global);
+
+      // Просто тест
+      // const updated = objectUtils.compareObjects(this.list.state, this.model.state);
     });
 
     this.model.requestSummaryData();

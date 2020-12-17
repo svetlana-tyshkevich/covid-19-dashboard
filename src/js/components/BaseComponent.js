@@ -4,6 +4,10 @@ export default class BaseComponent {
   constructor(cssClass) {
     this.wrap = document.querySelector(`.${cssClass}`);
     this.wrap.classList.add('component');
+    this.state = {
+      case: '',
+      country: '',
+    };
 
     this.resizeButton = this.wrap.querySelector('.resize-button');
 
@@ -24,6 +28,16 @@ export default class BaseComponent {
     });
 
     this.wrap.append(this.loaderWrap);
+  }
+
+  setState = (field, value) => {
+    this.state[field] = value; // Устанавливаем значение стейта компонента
+  }
+
+  getState = () => this.state // геттер стейта
+
+  checkState = (/* state */) => {
+    // тут будет что то вроде проверки, если общий стейт изменился, то меняем и тут
   }
 
   sort = (array, parametr) => {
