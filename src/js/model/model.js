@@ -5,29 +5,22 @@ const model = {
     this.data[key] = data;
     this.notifyObservers();
   },
-  requestData() {
-    const urls = ['https://api.covid19api.com/summary'];
-    urls.forEach((url) => {
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.Message === 'Caching in progress') {
-            throw new Error('Cannot get data!');
-          }
-          const name = url.split('/').pop();
-          model.setData(data, name);
-        });
-    });
+  listen(observer) {
+    this.observers.push(observer);
   },
-  requestStatusPerCountry({
-    country, cases, monthFrom, monthTo,
-  }) {
-    if (!cases.match(/confirmed|recovered|deaths/)) {
-      throw new Error('Cases must be one of: confirmed, recovered, deaths!');
-    }
-    const dateFrom = `2020-${this.appendNull(monthFrom)}-11T00:00:00Z`;
-    const dateTo = `2020-${this.appendNull(monthTo)}-11T00:00:00Z`;
-    const url = `https://api.covid19api.com/country/${country}/status/${cases}?from=${dateFrom}&to=${dateTo}`;
+  notifyObservers() {
+    this.observers.forEach((notify) => notify());
+  },
+  requestSummaryData() {
+    fetch('https://disease.sh/v3/covid-19/countries')
+      .then((res) => res.json())
+      .then((data) => {
+        model.setData(data, 'summary');
+      });
+  },
+  // @param country{country name || iso2 || iso3 || country ID code}
+  requestStatusPerCountry(country) {
+    const url = `https://disease.sh/v3/covid-19/countries/${country}?strict=true`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -35,35 +28,18 @@ const model = {
           throw new Error('Invalid country name!');
         }
 
-        const name = 'period';
+        const name = country;
         model.setData(data, name);
       });
   },
-  requestWorldStatus() {
-    const day = new Date().getDate();
-    const month = new Date().getMonth();
-    const year = new Date().getFullYear();
-    const url = `https://api.covid19api.com/world?from=2020-02-25T00:00:00Z&to=${year}-${month}-${day}T00:00:00Z`;
+  requestWorldStatus({ daysBeforeNow }) {
+    const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${daysBeforeNow}`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
         const name = 'allStatus';
         model.setData(data, name);
       });
-  },
-  listen(observer) {
-    this.observers.push(observer);
-  },
-  notifyObservers() {
-    this.observers.forEach((notify) => notify());
-  },
-  getCountryList() {
-    const { Countries } = model.data.summary;
-    return Countries.map((element) => element.Country);
-  },
-  getSlugList() {
-    const { Countries } = model.data.summary;
-    return Countries.map((element) => element.Slug);
   },
   getDataByCountry(country) {
     if (typeof country !== 'string') {
@@ -76,14 +52,11 @@ const model = {
     }
     throw new Error('Invalide data!');
   },
-  getCountriesStatus() {
-    return model?.data?.summary?.Countries || [];
-  },
-  getAllSummaryData() {
-    return model.data.summary;
-  },
   appendNull(num) {
     return num < 10 ? `0${num}` : `${num}`;
+  },
+  getSummaryData() {
+    return model?.data?.summary || [];
   },
   getDate() {
     const date = new Date(model.data.summary.Date);
@@ -93,10 +66,10 @@ const model = {
     return `${day}/${month}/${year}`;
   },
   getStatus() {
-    return model.data.period;
+    return model?.data?.period;
   },
   getWorldStatus() {
-    return model.data.allStatus || [];
+    return model?.data?.allStatus || [];
   },
 };
 

@@ -16,7 +16,7 @@ export default class App {
     this.chart = new ChartBoard('chart');
 
     this.model.listen(() => {
-      const countries = this.model.getCountriesStatus();
+      const countries = this.model.getSummaryData();
       if (countries && countries.length > 0) {
         this.list.update(countries);
       }
@@ -28,15 +28,8 @@ export default class App {
       }
     });
 
-    // const example = {
-    //   country: 'south-africa',
-    //   cases: 'deaths',
-    //   monthFrom: 3,
-    //   monthTo: 4,
-    // };
-    // this.model.requestStatus(example);
-    this.model.requestData();
-    this.model.requestWorldStatus();
+    this.model.requestSummaryData();
+    this.model.requestWorldStatus({ daysBeforeNow: 90 });
   }
 
   append = () => this.element;

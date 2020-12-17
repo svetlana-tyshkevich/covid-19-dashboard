@@ -21,7 +21,7 @@ export default class List extends BaseComponent {
     this.list.append(title);
     if (cases === 'confirmed') {
       this.sortedData = this.sort(this.dataList, 'TotalConfirmed');
-    } else if (cases === 'recovered') {
+    } else if (cases === 'deaths') {
       this.sortedData = this.sort(this.dataList, 'TotalDeaths');
     } else {
       this.sortedData = this.sort(this.dataList, 'TotalRecovered');
@@ -40,7 +40,7 @@ export default class List extends BaseComponent {
 
       if (cases === 'confirmed') {
         casesOf = element.TotalConfirmed;
-      } else if (cases === 'recovered') {
+      } else if (cases === 'deaths') {
         casesOf = element.TotalDeaths;
       } else {
         casesOf = element.TotalRecovered;
@@ -122,6 +122,7 @@ export default class List extends BaseComponent {
 
   update = (data) => {
     this.dataList = [...data];
+    // console.log(this.dataList);
     if (!this.isStarted) {
       this.init();
       this.createList('confirmed');

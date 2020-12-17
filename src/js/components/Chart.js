@@ -16,7 +16,7 @@ export default class ChartBoard extends BaseComponent {
     am4core.useTheme(amThem);
     am4core.useTheme(amAnimation);
 
-    this.sortedDate = this.sort(this.data, 'TotalConfirmed');
+    // this.sortedDate = this.sort(this.data, 'TotalConfirmed');
 
     const chart = am4core.create(this.chart, am4charts.XYChart);
     chart.paddingRight = 20;
@@ -51,9 +51,9 @@ export default class ChartBoard extends BaseComponent {
     chart.cursor = new am4charts.XYCursor();
     chart.cursor.xAxis = dateAxis;
 
-    const scrollbarX = new am4core.Scrollbar();
-    scrollbarX.marginBottom = 20;
-    chart.scrollbarX = scrollbarX;
+    // const scrollbarX = new am4core.Scrollbar();
+    // scrollbarX.marginBottom = 20;
+    // chart.scrollbarX = scrollbarX;
 
     this.wrap.append(this.chart);
   }
@@ -67,7 +67,8 @@ export default class ChartBoard extends BaseComponent {
   }
 
   update = (data) => {
-    this.data = Array.from(data);
+    this.data = [...data];
+    // console.log(this.data);
     if (!this.isStarted) {
       this.init();
       this.createChart();
