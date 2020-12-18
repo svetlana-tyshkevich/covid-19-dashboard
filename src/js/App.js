@@ -1,5 +1,4 @@
 import create from './utils/create';
-// import * as objectUtils from './utils/objectUtils';
 
 import model from './model/model';
 
@@ -15,6 +14,11 @@ export default class App {
     this.list = new List('list');
 
     this.chart = new ChartBoard('chart');
+
+    this.model.components.push(
+      this.list,
+      this.chart,
+    );
 
     this.model.listen(() => {
       const countries = this.model.getSummaryData();

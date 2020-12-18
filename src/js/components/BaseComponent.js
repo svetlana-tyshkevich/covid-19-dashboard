@@ -1,12 +1,16 @@
 import create from '../utils/create';
 
+import model from '../model/model';
+
 export default class BaseComponent {
   constructor(cssClass) {
+    this.model = model;
+
     this.wrap = document.querySelector(`.${cssClass}`);
     this.wrap.classList.add('component');
     this.state = {
-      case: '',
-      country: '',
+      case: 'cases',
+      country: 'global',
     };
 
     this.resizeButton = this.wrap.querySelector('.resize-button');
@@ -31,13 +35,8 @@ export default class BaseComponent {
   }
 
   setState = (field, value) => {
-    this.state[field] = value; // Устанавливаем значение стейта компонента
-  }
-
-  getState = () => this.state // геттер стейта
-
-  checkState = (/* state */) => {
-    // тут будет что то вроде проверки, если общий стейт изменился, то меняем и тут
+    this.state[field] = value;
+    this.model.setState(this.state);
   }
 
   sort = (array, parametr) => {
@@ -69,4 +68,8 @@ export default class BaseComponent {
 
     this.wrap.append(this.tabs);
   }
+
+  useState = () => {}
+
+  update = () => {}
 }

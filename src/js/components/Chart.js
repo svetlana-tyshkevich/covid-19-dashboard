@@ -121,6 +121,25 @@ export default class ChartBoard extends BaseComponent {
     }
   }
 
+  useState = (newState) => {
+    this.model.listen(() => {
+      const { timeline } = this.model.getCountryDeyly();
+      this.data = timeline;
+      this.updateChart(this.state.case);
+      this.state = newState;
+    });
+    this.model.requestCountryStatus(newState.country);
+    // Если нужно будет менять состояние табов
+    //  else if (newState?.case !== this.state.case) {
+    //   const tab = this.tabItems.find((el) => el.dataset.tab === newState.case);
+    //   this.tabItems.forEach((el) => {
+    //     el.classList.remove('active');
+    //   });
+    //   tab.classList.add('active');
+    //   this.updateChart(newState.case);
+    // }
+  }
+
   init = () => {
     this.isStarted = true;
     this.addTab('Confirmed', 'cases');

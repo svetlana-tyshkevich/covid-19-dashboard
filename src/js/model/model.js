@@ -1,16 +1,29 @@
+// import * as _ from 'lodash';
+
 const model = {
   data: {},
   state: {
-    case: '',
-    country: '',
+    case: 'cases',
+    country: 'global',
   },
+  components: [],
   observers: [],
   setData(data, key) {
     this.data[key] = data;
     this.notifyObservers();
   },
-  setState(field, value) {
-    this.state[field] = value;
+  setState(state) {
+    this.state = state;
+    this.checkStates();
+  },
+  checkStates() {
+    this.components.forEach((component) => {
+      // console.log(this.state, component.state);
+      // const compare = _.isEqual(this.state, component.state);
+      // if (!compare) {
+      component.useState(this.state);
+      // }
+    });
   },
   getState() {
     return this.state;
@@ -30,7 +43,6 @@ const model = {
         });
     }
   },
-  // @param country{country name || iso2 || iso3 || country ID code}
   requestStatusPerCountry(country) {
     const url = `https://disease.sh/v3/covid-19/countries/${country}?strict=true`;
     fetch(url)
@@ -58,6 +70,22 @@ const model = {
           model.setData(data, name);
         });
     }
+  },
+  requestCountryStatus(countryId) {
+    const today = new Date();
+    const formDate = new Date('2020-01-22T00:00:00.000Z');
+    const difference = formDate > today ? formDate - today : today - formDate;
+    const diffDays = Math.floor(difference / (1000 * 3600 * 24));
+    const url = `https://disease.sh/v3/covid-19/historical/${countryId}?lastdays=${diffDays}`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        const name = 'country';
+        model.setData(data, name);
+      });
+  },
+  getCountryDeyly() {
+    return this.data.country;
   },
   appendNull(num) {
     return num < 10 ? `0${num}` : `${num}`;

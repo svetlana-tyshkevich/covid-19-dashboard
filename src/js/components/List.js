@@ -83,7 +83,20 @@ export default class List extends BaseComponent {
       this.tabListener(target);
     } else if (target === deaths) {
       this.tabListener(target);
+    } else if (target?.dataset?.country) {
+      this.listListener(target);
     }
+  }
+
+  listListener = (target) => {
+    if (!target.closest('.active')) {
+      this.setState('country', target.dataset.country);
+    }
+    const listItems = [...this.list.children];
+    listItems.forEach((el) => {
+      el.classList.remove('active');
+    });
+    target.classList.add('active');
   }
 
   tabListener = (target) => {
