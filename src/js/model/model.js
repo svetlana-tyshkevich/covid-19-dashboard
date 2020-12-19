@@ -3,8 +3,8 @@
 const model = {
   data: {},
   state: {
-    case: 'cases',
-    country: 'global',
+    case: "cases",
+    country: "global",
   },
   components: [],
   observers: [],
@@ -12,18 +12,9 @@ const model = {
     this.data[key] = data;
     this.notifyObservers();
   },
-  setState(state) {
-    this.state = state;
-    this.checkStates();
-  },
-  checkStates() {
-    this.components.forEach((component) => {
-      // console.log(this.state, component.state);
-      // const compare = _.isEqual(this.state, component.state);
-      // if (!compare) {
-      component.useState(this.state);
-      // }
-    });
+  setState(key, value) {
+    this.state[key] = value;
+    this.notifyObservers();
   },
   getState() {
     return this.state;
@@ -36,10 +27,10 @@ const model = {
   },
   requestSummaryData() {
     if (!this.data?.summary) {
-      fetch('https://disease.sh/v3/covid-19/countries')
+      fetch("https://disease.sh/v3/covid-19/countries")
         .then((res) => res.json())
         .then((data) => {
-          model.setData(data, 'summary');
+          model.setData(data, "summary");
         });
     }
   },
@@ -48,8 +39,8 @@ const model = {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        if (data.message === 'Not Found') {
-          throw new Error('Invalid country name!');
+        if (data.message === "Not Found") {
+          throw new Error("Invalid country name!");
         }
 
         const name = country;
@@ -59,28 +50,28 @@ const model = {
   requestWorldStatus() {
     if (!this.data?.allStatus) {
       const today = new Date();
-      const formDate = new Date('2020-01-22T00:00:00.000Z');
+      const formDate = new Date("2020-01-22T00:00:00.000Z");
       const difference = formDate > today ? formDate - today : today - formDate;
       const diffDays = Math.floor(difference / (1000 * 3600 * 24));
       const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${diffDays}`;
       fetch(url)
         .then((res) => res.json())
         .then((data) => {
-          const name = 'allStatus';
+          const name = "allStatus";
           model.setData(data, name);
         });
     }
   },
   requestCountryStatus(countryId) {
     const today = new Date();
-    const formDate = new Date('2020-01-22T00:00:00.000Z');
+    const formDate = new Date("2020-01-22T00:00:00.000Z");
     const difference = formDate > today ? formDate - today : today - formDate;
     const diffDays = Math.floor(difference / (1000 * 3600 * 24));
     const url = `https://disease.sh/v3/covid-19/historical/${countryId}?lastdays=${diffDays}`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        const name = 'country';
+        const name = "country";
         model.setData(data, name);
       });
   },
@@ -93,12 +84,8 @@ const model = {
   getSummaryData() {
     return model?.data?.summary || [];
   },
-  getDate() {
-
-  },
-  getStatus() {
-
-  },
+  getDate() {},
+  getStatus() {},
   getWorldStatus() {
     return model?.data?.allStatus || [];
   },

@@ -1,32 +1,51 @@
-import create from '../utils/create';
-import BaseComponent from './BaseComponent';
+import create from "../utils/create";
+import BaseComponent from "./BaseComponent";
 
 export default class List extends BaseComponent {
   constructor(className) {
     super(className);
-    this.list = create({ tagName: 'ul', classNames: `${className}__inner` });
+    this.list = create({ tagName: "ul", classNames: `${className}__inner` });
+    this.state = {};
 
     this.isStarted = false;
+
+    this.model.listen(() => {
+      const state = this.model.getState();
+      if (!Object.is(state, this.state)) {
+        this.setState(state);
+        let data = [];
+        if (state.country === "global") {
+          data = this.model.getSummaryData();
+        } else {
+          data = this.model.requestStatusPerCountry(state.country);
+        }
+        this.list.update(data);
+      }
+    });
   }
 
   checkArgument = (cases) => {
     if (!cases.match(/cases|recovered|deaths/)) {
-      throw new Error('Cases must be one of: confirmed, recovered, deaths!');
+      throw new Error("Cases must be one of: confirmed, recovered, deaths!");
     }
-  }
+  };
 
   createList = (cases) => {
     this.checkArgument(cases);
 
-    this.list.innerHTML = '';
-    const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
+    this.list.innerHTML = "";
+    const title = create({
+      tagName: "h3",
+      classNames: "list__title",
+      children: "Cases by countries",
+    });
     this.list.append(title);
     this.sortedData = this.sort(this.dataList, cases);
 
     const fullList = this.createListItems(this.sortedData, cases);
     fullList.forEach((el) => this.list.append(el));
     this.wrap.append(this.list);
-  }
+  };
 
   createListItems = (list, cases) => {
     this.checkArgument(cases);
@@ -35,7 +54,7 @@ export default class List extends BaseComponent {
       const casesOf = element[cases];
 
       const casesItem = create({
-        tagName: 'span',
+        tagName: "span",
         classNames: `list__item-cases ${cases}`,
         children: `${casesOf}`,
       });
@@ -43,33 +62,33 @@ export default class List extends BaseComponent {
       const { flag, iso2 } = element.countryInfo;
 
       const img = create({
-        tagName: 'img',
-        dataAttr: [['src', flag]],
+        tagName: "img",
+        dataAttr: [["src", flag]],
       });
 
       const imgWrap = create({
-        tagName: 'div',
-        classNames: 'list__item-img',
+        tagName: "div",
+        classNames: "list__item-img",
         children: img,
       });
 
       const countryItem = create({
-        tagName: 'span',
-        classNames: 'list__item-country',
+        tagName: "span",
+        classNames: "list__item-country",
         children: element.country,
       });
 
       const listItem = create({
-        tagName: 'li',
-        classNames: 'list__item',
+        tagName: "li",
+        classNames: "list__item",
         children: [imgWrap, countryItem, casesItem],
-        dataAttr: [['country', iso2]],
+        dataAttr: [["country", iso2]],
       });
 
       fullList.push(listItem);
     });
     return fullList;
-  }
+  };
 
   handleEvent = (event) => {
     const { target } = event;
@@ -86,48 +105,48 @@ export default class List extends BaseComponent {
     } else if (target?.dataset?.country) {
       this.listListener(target);
     }
-  }
+  };
 
   listListener = (target) => {
-    if (!target.closest('.active')) {
-      this.setState('country', target.dataset.country);
+    if (!target.closest(".active")) {
+      this.model.setState("country", target.dataset.country);
     }
     const listItems = [...this.list.children];
     listItems.forEach((el) => {
-      el.classList.remove('active');
+      el.classList.remove("active");
     });
-    target.classList.add('active');
-  }
+    target.classList.add("active");
+  };
 
   tabListener = (target) => {
-    if (!target.closest('.active')) {
+    if (!target.closest(".active")) {
       this.createList(target.dataset.tab);
-      this.setState('case', target.dataset.tab);
+      this.setState("case", target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
-      el.classList.remove('active');
+      el.classList.remove("active");
     });
-    target.classList.add('active');
-  }
+    target.classList.add("active");
+  };
 
   init = () => {
     this.isStarted = true;
-    this.addTab('Confirmed', 'cases');
-    this.addTab('Recovered', 'recovered');
-    this.addTab('Deaths', 'deaths');
+    this.addTab("Confirmed", "cases");
+    this.addTab("Recovered", "recovered");
+    this.addTab("Deaths", "deaths");
     this.tabItems = [...this.tabs.children];
     const confirmed = this.tabItems[0];
-    confirmed.classList.add('active');
+    confirmed.classList.add("active");
 
-    this.wrap.addEventListener('click', this.handleEvent);
-  }
+    this.wrap.addEventListener("click", this.handleEvent);
+  };
 
   update = (data) => {
     this.dataList = [...data];
     if (!this.isStarted) {
       this.init();
-      this.createList('cases');
+      this.createList("cases");
       this.loaded();
     }
-  }
+  };
 }
