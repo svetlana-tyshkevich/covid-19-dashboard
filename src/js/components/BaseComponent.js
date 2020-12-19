@@ -26,6 +26,12 @@ export default class BaseComponent {
     this.wrap.append(this.loaderWrap);
   }
 
+  sort = (array, parametr) => {
+    const newArray = [...array];
+    newArray.sort((a, b) => b[parametr] - a[parametr]);
+    return newArray;
+  }
+
   fold = () => {
     this.wrap.classList.toggle('expanded');
     this.resizeButton.classList.toggle('pressed');

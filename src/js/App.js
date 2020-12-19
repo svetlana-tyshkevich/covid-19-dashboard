@@ -6,6 +6,7 @@ import model from './model/model';
 import WorldMap from './components/Map';
 
 import List from './components/List';
+import ChartBoard from './components/Chart';
 
 export default class App {
   constructor() {
@@ -14,25 +15,26 @@ export default class App {
     this.model = model;
 
     this.list = new List('list');
-    this.list.init();
-
     this.map = new WorldMap('map');
 
+    this.chart = new ChartBoard('chart');
+
     this.model.listen(() => {
-      const countries = this.model.getCountriesStatus();
-      this.list.update(countries);
+      const countries = this.model.getSummaryData();
+      if (countries && countries.length > 0) {
+        this.list.update(countries);
       this.map.update(countries);
+      }
+    });
+    this.model.listen(() => {
+      const global = this.model.getWorldStatus();
+      if (global && global.length > 0) {
+        this.chart.update(global);
+      }
     });
 
-    // const example = {
-    //   country: 'south-africa',
-    //   cases: 'deaths',
-    //   monthFrom: 3,
-    //   monthTo: 4,
-    // };
-    // this.model.requestStatus(example);
-    this.model.requestData();
-  }
+    this.model.requestSummaryData();
+    this.model.requestWorldStatus({ daysBeforeNow: 90 });
 
   append = () => this.element;
 }
