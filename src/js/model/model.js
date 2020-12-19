@@ -8,28 +8,31 @@ const model = {
   },
   components: [],
   observers: [],
+  states: [],
   setData(data, key) {
     this.data[key] = data;
     this.notifyObservers();
   },
-  setState(state) {
-    this.state = state;
-    this.checkStates();
+  setState(key, data) {
+    this.state[key] = data;
+    this.notifyObservers();
   },
-  checkStates() {
-    this.components.forEach((component) => {
-      // console.log(this.state, component.state);
-      // const compare = _.isEqual(this.state, component.state);
-      // if (!compare) {
-      component.useState(this.state);
-      // }
-    });
+  listenState(state) {
+    this.states.push(state);
   },
   getState() {
     return this.state;
   },
   listen(observer) {
+    this.components.forEach((component) => {
+      if (component?.state) {
+        this.states.push(component.state);
+      }
+    });
     this.observers.push(observer);
+  },
+  notifyStates() {
+    this.states.forEach((notify) => notify());
   },
   notifyObservers() {
     this.observers.forEach((notify) => notify());
@@ -84,7 +87,7 @@ const model = {
         model.setData(data, name);
       });
   },
-  getCountryDeyly() {
+  getCountryDaily() {
     return this.data.country;
   },
   appendNull(num) {

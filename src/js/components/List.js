@@ -90,7 +90,7 @@ export default class List extends BaseComponent {
 
   listListener = (target) => {
     if (!target.closest('.active')) {
-      this.setState('country', target.dataset.country);
+      this.model.setState('country', target.dataset.country);
     }
     const listItems = [...this.list.children];
     listItems.forEach((el) => {
@@ -102,7 +102,7 @@ export default class List extends BaseComponent {
   tabListener = (target) => {
     if (!target.closest('.active')) {
       this.createList(target.dataset.tab);
-      this.setState('case', target.dataset.tab);
+      this.model.setState('case', target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
@@ -122,12 +122,14 @@ export default class List extends BaseComponent {
     this.wrap.addEventListener('click', this.handleEvent);
   }
 
-  update = (data) => {
+  update = ({ data, state }) => {
     this.dataList = [...data];
+    this.createList('cases');
     if (!this.isStarted) {
       this.init();
-      this.createList('cases');
       this.loaded();
     }
+    // console.log('got', state);
+    this.state = state;
   }
 }

@@ -22,15 +22,13 @@ export default class App {
 
     this.model.listen(() => {
       const countries = this.model.getSummaryData();
-      if (countries && countries.length > 0) {
-        this.list.update(countries);
+      const modelState = this.model.getState();
+      if (countries?.length > 0) {
+        this.list.update({ data: countries, state: modelState });
       }
 
       const global = this.model.getWorldStatus();
-      this.chart.update(global);
-
-      // Просто тест
-      // const updated = objectUtils.compareObjects(this.list.state, this.model.state);
+      this.chart.update({ data: global, state: modelState });
     });
 
     this.model.requestSummaryData();

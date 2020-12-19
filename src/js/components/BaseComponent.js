@@ -36,7 +36,6 @@ export default class BaseComponent {
 
   setState = (field, value) => {
     this.state[field] = value;
-    this.model.setState(this.state);
   }
 
   sort = (array, parametr) => {
@@ -68,8 +67,6 @@ export default class BaseComponent {
 
     this.wrap.append(this.tabs);
   }
-
-  useState = () => {}
 
   update = () => {}
 }
