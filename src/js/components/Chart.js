@@ -45,14 +45,15 @@ export default class ChartBoard extends BaseComponent {
 
   toDeily = (cases) => {
     const data = [...this.createDate(cases)];
+    const simularData = [...this.createDate(cases)];
+    const result = [];
     data.forEach((el, ind) => {
       const val = el.value;
-      const prevValue = data[ind - 1]?.value || 0;
+      const prevValue = simularData[ind - 1]?.value || 0;
       const num = val - prevValue;
-      // eslint-disable-next-line no-param-reassign
-      el.value = num;
+      result.push({ date: el.date, value: num });
     });
-    return data;
+    return result;
   }
 
   createDate = (cases) => {
@@ -97,7 +98,12 @@ export default class ChartBoard extends BaseComponent {
       am4core.color(color),
     ];
 
-    const data = this.createDate(cases);
+    let data;
+    if (!Array.isArray(this.data)) {
+      data = this.createDate(cases);
+    } else {
+      data = this.data;
+    }
     this.chart.data = data;
 
     const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
@@ -132,7 +138,7 @@ export default class ChartBoard extends BaseComponent {
 
   handleEvent = (event) => {
     const { target } = event;
-    const [confirmed, recovered, deaths] = this.tabItems;
+    // const [confirmed, recovered, deaths] = this.tabItems;
     const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
     const prev = (positonActive > 0)
       ? this.tabItems[positonActive - 1]
@@ -142,11 +148,7 @@ export default class ChartBoard extends BaseComponent {
       : this.tabItems[0];
     if (target === this.resizeButton) {
       this.fold();
-    } else if (target === recovered) {
-      this.tabListener(target);
-    } else if (target === confirmed) {
-      this.tabListener(target);
-    } else if (target === deaths) {
+    } else if (target?.dataset?.tab) {
       this.tabListener(target);
     } else if (target.dataset.arrow === 'left') {
       this.tabListener(prev);
@@ -168,9 +170,13 @@ export default class ChartBoard extends BaseComponent {
       }
     } else if (!target.closest('.active')) {
       element = target;
-      this.updateChart(target.dataset.tab);
-      this.model.setState('case', target.dataset.tab);
+      if (element?.dataset?.sort === 'daily') {
+        this.data = this.toDeily(element.dataset.tab);
+      }
+      this.updateChart(element.dataset.tab);
+      this.model.setState('case', element.dataset.tab);
     }
+
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
@@ -194,15 +200,15 @@ export default class ChartBoard extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
-      ['Daily confirmed', [['tab', 'cases']]],
-      ['Daily recovered', [['tab', 'recovered']]],
-      ['Daily deaths', [['tab', 'deaths']]],
-      ['Per 100k population confirmed', [['tab', 'cases']]],
-      ['Per 100k population recovered', [['tab', 'recovered']]],
-      ['Per 100k population deaths', [['tab', 'deaths']]],
-      ['Daily per 100k confirmed', [['tab', 'cases']]],
-      ['Daily per 100k recovered', [['tab', 'recovered']]],
-      ['Daily per 100k deaths', [['tab', 'deaths']]],
+      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
+      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
+      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
+      // ['Per 100k population confirmed', [['tab', 'cases']]],
+      // ['Per 100k population recovered', [['tab', 'recovered']]],
+      // ['Per 100k population deaths', [['tab', 'deaths']]],
+      // ['Daily per 100k confirmed', [['tab', 'cases']]],
+      // ['Daily per 100k recovered', [['tab', 'recovered']]],
+      // ['Daily per 100k deaths', [['tab', 'deaths']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;

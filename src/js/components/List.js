@@ -27,20 +27,17 @@ export default class List extends BaseComponent {
     this.isStarted = false;
   }
 
-  checkArgument = (cases) => {
-    if (!cases.match(/cases|recovered|deaths/)) {
-      throw new Error('Cases must be one of: confirmed, recovered, deaths!');
-    }
+  createString = (start, end) => {
+    const capitalize = `${end.charAt(0).toUpperCase()}${end.slice(1)}`;
+    return start + capitalize;
   }
 
   createList = (cases) => {
-    this.checkArgument(cases);
-
     setTimeout(() => {
       this.list.innerHTML = '';
       const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
       this.list.append(title);
-      this.sortedData = this.sort(this.dataList, cases);
+      this.sortedData = this.sort(this.data, cases);
 
       const fullList = this.createListItems(this.sortedData, cases);
       fullList.forEach((el) => this.list.append(el));
@@ -49,7 +46,6 @@ export default class List extends BaseComponent {
   }
 
   createListItems = (list, cases) => {
-    this.checkArgument(cases);
     const fullList = [];
     list.forEach((element) => {
       const casesOf = element[cases];
@@ -93,7 +89,6 @@ export default class List extends BaseComponent {
 
   handleEvent = (event) => {
     const { target } = event;
-    const [confirmed, recovered, deaths] = this.tabItems;
     const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
     const prev = (positonActive > 0)
       ? this.tabItems[positonActive - 1]
@@ -104,11 +99,7 @@ export default class List extends BaseComponent {
 
     if (target === this.resizeButton) {
       this.fold();
-    } else if (target === recovered) {
-      this.tabListener(target);
-    } else if (target === confirmed) {
-      this.tabListener(target);
-    } else if (target === deaths) {
+    } else if (target?.dataset?.tab) {
       this.tabListener(target);
     } else if (target?.dataset?.country) {
       this.listListener(target);
@@ -143,7 +134,12 @@ export default class List extends BaseComponent {
       }
     } else if (!target.closest('.active')) {
       element = target;
-      this.createList(target.dataset.tab);
+      if (element?.dataset?.sort === 'daily') {
+        const cases = this.createString('today', target.dataset.tab);
+        this.createList(cases);
+      } else {
+        this.createList(target.dataset.tab);
+      }
       this.model.setState('case', target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
@@ -158,6 +154,9 @@ export default class List extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
+      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
+      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
+      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;
@@ -171,7 +170,7 @@ export default class List extends BaseComponent {
   }
 
   update = (data) => {
-    this.dataList = [...data];
+    this.data = [...data];
     if (!this.isStarted) {
       this.init();
       this.createList('cases');
