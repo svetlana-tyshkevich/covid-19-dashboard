@@ -1,5 +1,3 @@
-// import * as _ from 'lodash';
-
 const model = {
   data: {},
   state: {
@@ -17,18 +15,10 @@ const model = {
     this.state[key] = data;
     this.notifyObservers();
   },
-  listenState(state) {
-    this.states.push(state);
-  },
   getState() {
     return this.state;
   },
   listen(observer) {
-    this.components.forEach((component) => {
-      if (component?.state) {
-        this.states.push(component.state);
-      }
-    });
     this.observers.push(observer);
   },
   notifyStates() {

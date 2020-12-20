@@ -1,7 +1,8 @@
+import * as _ from 'lodash';
+
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import amThem from '@amcharts/amcharts4/themes/dark';
-// import amThem from '@amcharts/amcharts4/themes/amchartsdark';
 import amAnimation from '@amcharts/amcharts4/themes/animated';
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
@@ -12,6 +13,34 @@ export default class ChartBoard extends BaseComponent {
     this.chartBox = create({ tagName: 'div', classNames: 'chart__box', parent: this.wrap });
     this.isStarted = false;
     this.isChartOn = false;
+    this.isWaiting = false;
+
+    this.model.listen(() => {
+      if (!this.isStarted) {
+        const data = this.model.getWorldStatus();
+        this.update(data);
+      }
+      const state = this.model.getState();
+      if (!_.isEqual(this.state, state)) {
+        const stateCountryCode = state.country;
+        const cases = state.case;
+
+        if (stateCountryCode !== this.state.country) {
+          if (!this.isWaiting) {
+            this.isWaiting = true;
+            this.model.requestCountryStatus(stateCountryCode);
+          } else {
+            this.isWaiting = false;
+            const { timeline } = this.model.getCountryDaily();
+            this.update(timeline);
+            this.setState(state);
+          }
+        } else if (cases !== this.state.case) {
+          this.tabListener(cases);
+          this.setState(state);
+        }
+      }
+    });
   }
 
   createDate = (cases) => {
@@ -82,8 +111,10 @@ export default class ChartBoard extends BaseComponent {
 
   updateChart = (cases) => {
     if (this.isChartOn) {
-      this.chart.dispose();
-      this.createChart(cases);
+      setTimeout(() => {
+        this.chart.dispose();
+        this.createChart(cases);
+      }, 0);
     }
   }
 
@@ -103,33 +134,44 @@ export default class ChartBoard extends BaseComponent {
   }
 
   tabListener = (target) => {
-    if (!target.closest('.active')) {
+    let element;
+    if (typeof target === 'string') {
+      element = this.tabItems.find((el) => el.dataset.tab === target);
+      if (target === 'cases') {
+        this.updateChart(target);
+      } else if (target === 'recovered') {
+        this.updateChart(target);
+      } else if (target === 'deaths') {
+        this.updateChart(target);
+      }
+    } else if (!target.closest('.active')) {
+      element = target;
       this.updateChart(target.dataset.tab);
+      this.model.setState('case', target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
-    target.classList.add('active');
+    element.classList.add('active');
   }
 
-  update = ({ data, state }) => {
-    this.data = data;
+  update = (data) => {
     if (!this.isStarted) {
+      this.isStarted = true;
       this.init();
-      this.createChart('cases');
-      this.loaded();
-      return;
     }
-    if (this.state.case !== 'global' && this.model.state.country) {
-      const { timeline } = this.model.getCountryDaily();
-      this.data = timeline;
-      this.updateChart(this.state.case);
-      this.model.requestCountryStatus(state.country);
-    }
-    this.state = state;
+    this.data = data;
+    this.createChart(this.state.case);
+    // if (this.state.case !== 'global' && this.model.state.country) {
+    //   const { timeline } = this.model.getCountryDaily();
+    //   this.data = timeline;
+    //   this.updateChart(this.state.case);
+    //   this.model.requestCountryStatus(state.country);
+    // }
+    // this.state = state;
   }
 
-  listen = () => {
+  tabsListen = () => {
     // Если нужно будет менять состояние табов
     //  else if (newState?.case !== this.state.case) {
     //   const tab = this.tabItems.find((el) => el.dataset.tab === newState.case);
@@ -151,5 +193,6 @@ export default class ChartBoard extends BaseComponent {
     confirmed.classList.add('active');
 
     this.wrap.addEventListener('click', this.handleEvent);
+    this.loaded();
   }
 }

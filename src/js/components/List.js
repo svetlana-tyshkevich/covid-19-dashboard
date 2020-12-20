@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
 
@@ -5,6 +7,22 @@ export default class List extends BaseComponent {
   constructor(className) {
     super(className);
     this.list = create({ tagName: 'ul', classNames: `${className}__inner` });
+
+    this.model.listen(() => {
+      const countries = this.model.getSummaryData();
+      if (countries?.length > 0) {
+        this.update(countries);
+      }
+      const state = this.model.getState();
+      if (!_.isEqual(this.state, state)) {
+        const cases = state.case;
+
+        if (cases !== this.state.case) {
+          this.tabListener(cases);
+          this.setState(state);
+        }
+      }
+    });
 
     this.isStarted = false;
   }
@@ -18,14 +36,16 @@ export default class List extends BaseComponent {
   createList = (cases) => {
     this.checkArgument(cases);
 
-    this.list.innerHTML = '';
-    const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
-    this.list.append(title);
-    this.sortedData = this.sort(this.dataList, cases);
+    setTimeout(() => {
+      this.list.innerHTML = '';
+      const title = create({ tagName: 'h3', classNames: 'list__title', children: 'Cases by countries' });
+      this.list.append(title);
+      this.sortedData = this.sort(this.dataList, cases);
 
-    const fullList = this.createListItems(this.sortedData, cases);
-    fullList.forEach((el) => this.list.append(el));
-    this.wrap.append(this.list);
+      const fullList = this.createListItems(this.sortedData, cases);
+      fullList.forEach((el) => this.list.append(el));
+      this.wrap.append(this.list);
+    }, 0);
   }
 
   createListItems = (list, cases) => {
@@ -100,14 +120,25 @@ export default class List extends BaseComponent {
   }
 
   tabListener = (target) => {
-    if (!target.closest('.active')) {
+    let element;
+    if (typeof target === 'string') {
+      element = this.tabItems.find((el) => el.dataset.tab === target);
+      if (target === 'cases') {
+        this.createList(target);
+      } else if (target === 'recovered') {
+        this.createList(target);
+      } else if (target === 'deaths') {
+        this.createList(target);
+      }
+    } else if (!target.closest('.active')) {
+      element = target;
       this.createList(target.dataset.tab);
       this.model.setState('case', target.dataset.tab);
     }
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
-    target.classList.add('active');
+    element.classList.add('active');
   }
 
   init = () => {
@@ -122,14 +153,12 @@ export default class List extends BaseComponent {
     this.wrap.addEventListener('click', this.handleEvent);
   }
 
-  update = ({ data, state }) => {
+  update = (data) => {
     this.dataList = [...data];
-    this.createList('cases');
     if (!this.isStarted) {
       this.init();
+      this.createList('cases');
       this.loaded();
     }
-    // console.log('got', state);
-    this.state = state;
   }
 }

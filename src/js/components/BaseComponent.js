@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 import create from '../utils/create';
 
 import model from '../model/model';
@@ -34,8 +36,12 @@ export default class BaseComponent {
     this.wrap.append(this.loaderWrap);
   }
 
-  setState = (field, value) => {
-    this.state[field] = value;
+  setState = (state) => {
+    _.forIn(state, (value, key) => {
+      if (this.state[key] !== state[key]) {
+        this.state[key] = state[key];
+      }
+    });
   }
 
   sort = (array, parametr) => {
