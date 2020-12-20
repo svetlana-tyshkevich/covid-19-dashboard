@@ -94,6 +94,13 @@ export default class List extends BaseComponent {
   handleEvent = (event) => {
     const { target } = event;
     const [confirmed, recovered, deaths] = this.tabItems;
+    const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
+    const prev = (positonActive > 0)
+      ? this.tabItems[positonActive - 1]
+      : this.tabItems[this.tabItems.length - 1];
+    const next = positonActive < this.tabItems.length - 1
+      ? this.tabItems[positonActive + 1]
+      : this.tabItems[0];
 
     if (target === this.resizeButton) {
       this.fold();
@@ -105,6 +112,10 @@ export default class List extends BaseComponent {
       this.tabListener(target);
     } else if (target?.dataset?.country) {
       this.listListener(target);
+    } else if (target.dataset.arrow === 'left') {
+      this.tabListener(prev);
+    } else if (target.dataset.arrow === 'right') {
+      this.tabListener(next);
     }
   }
 
@@ -143,9 +154,15 @@ export default class List extends BaseComponent {
 
   init = () => {
     this.isStarted = true;
-    this.addTab('Confirmed', 'cases');
-    this.addTab('Recovered', 'recovered');
-    this.addTab('Deaths', 'deaths');
+    const tabs = [
+      ['Confirmed', [['tab', 'cases']]],
+      ['Recovered', [['tab', 'recovered']]],
+      ['Deaths', [['tab', 'deaths']]],
+    ];
+    tabs.forEach((el) => {
+      const [name, data] = el;
+      this.addTab(name, data);
+    });
     this.tabItems = [...this.tabs.children];
     const confirmed = this.tabItems[0];
     confirmed.classList.add('active');

@@ -7,6 +7,7 @@ import model from '../model/model';
 export default class BaseComponent {
   constructor(cssClass) {
     this.model = model;
+    this.isSlider = false;
 
     this.wrap = document.querySelector(`.${cssClass}`);
     this.wrap.classList.add('component');
@@ -62,14 +63,36 @@ export default class BaseComponent {
     }, 0);
   }
 
-  addTab = (name, attr) => {
+  addTab = (name, dataAttr) => {
     const element = create({
       tagName: 'div',
       classNames: 'tab',
       children: name,
-      dataAttr: [['tab', attr]],
+      dataAttr: [...dataAttr],
     });
+
     this.tabs.append(element);
+
+    const tabItems = [...this.tabs.children];
+    if (tabItems.length > 5) {
+      this.arrowL = create({
+        tagName: 'div',
+        classNames: 'tab__arrow left',
+        children: '<',
+        dataAttr: [['arrow', 'left']],
+      });
+      this.arrowR = create({
+        tagName: 'div',
+        classNames: 'tab__arrow right',
+        children: '>',
+        dataAttr: [['arrow', 'right']],
+      });
+      if (!this.isSlider) {
+        this.isSlider = true;
+        this.tabs.append(this.arrowL, this.arrowR);
+      }
+      this.tabs.classList.add('slider');
+    }
 
     this.wrap.append(this.tabs);
   }

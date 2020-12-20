@@ -43,6 +43,18 @@ export default class ChartBoard extends BaseComponent {
     });
   }
 
+  toDeily = (cases) => {
+    const data = [...this.createDate(cases)];
+    data.forEach((el, ind) => {
+      const val = el.value;
+      const prevValue = data[ind - 1]?.value || 0;
+      const num = val - prevValue;
+      // eslint-disable-next-line no-param-reassign
+      el.value = num;
+    });
+    return data;
+  }
+
   createDate = (cases) => {
     const category = this.data[cases];
     const arrayFromCases = Object.keys(category);
@@ -121,7 +133,13 @@ export default class ChartBoard extends BaseComponent {
   handleEvent = (event) => {
     const { target } = event;
     const [confirmed, recovered, deaths] = this.tabItems;
-
+    const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
+    const prev = (positonActive > 0)
+      ? this.tabItems[positonActive - 1]
+      : this.tabItems[this.tabItems.length - 1];
+    const next = positonActive < this.tabItems.length - 1
+      ? this.tabItems[positonActive + 1]
+      : this.tabItems[0];
     if (target === this.resizeButton) {
       this.fold();
     } else if (target === recovered) {
@@ -130,6 +148,10 @@ export default class ChartBoard extends BaseComponent {
       this.tabListener(target);
     } else if (target === deaths) {
       this.tabListener(target);
+    } else if (target.dataset.arrow === 'left') {
+      this.tabListener(prev);
+    } else if (target.dataset.arrow === 'right') {
+      this.tabListener(next);
     }
   }
 
@@ -162,32 +184,30 @@ export default class ChartBoard extends BaseComponent {
     }
     this.data = data;
     this.createChart(this.state.case);
-    // if (this.state.case !== 'global' && this.model.state.country) {
-    //   const { timeline } = this.model.getCountryDaily();
-    //   this.data = timeline;
-    //   this.updateChart(this.state.case);
-    //   this.model.requestCountryStatus(state.country);
-    // }
-    // this.state = state;
-  }
 
-  tabsListen = () => {
-    // Если нужно будет менять состояние табов
-    //  else if (newState?.case !== this.state.case) {
-    //   const tab = this.tabItems.find((el) => el.dataset.tab === newState.case);
-    //   this.tabItems.forEach((el) => {
-    //     el.classList.remove('active');
-    //   });
-    //   tab.classList.add('active');
-    //   this.updateChart(newState.case);
-    // }
+    this.toDeily('cases');
   }
 
   init = () => {
     this.isStarted = true;
-    this.addTab('Confirmed', 'cases');
-    this.addTab('Recovered', 'recovered');
-    this.addTab('Deaths', 'deaths');
+    const tabs = [
+      ['Confirmed', [['tab', 'cases']]],
+      ['Recovered', [['tab', 'recovered']]],
+      ['Deaths', [['tab', 'deaths']]],
+      ['Daily confirmed', [['tab', 'cases']]],
+      ['Daily recovered', [['tab', 'recovered']]],
+      ['Daily deaths', [['tab', 'deaths']]],
+      ['Per 100k population confirmed', [['tab', 'cases']]],
+      ['Per 100k population recovered', [['tab', 'recovered']]],
+      ['Per 100k population deaths', [['tab', 'deaths']]],
+      ['Daily per 100k confirmed', [['tab', 'cases']]],
+      ['Daily per 100k recovered', [['tab', 'recovered']]],
+      ['Daily per 100k deaths', [['tab', 'deaths']]],
+    ];
+    tabs.forEach((el) => {
+      const [name, data] = el;
+      this.addTab(name, data);
+    });
     this.tabItems = [...this.tabs.children];
     const confirmed = this.tabItems[0];
     confirmed.classList.add('active');
