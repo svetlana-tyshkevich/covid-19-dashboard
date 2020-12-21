@@ -11,6 +11,7 @@
 #mapBox {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .map-overlay {
@@ -26,10 +27,12 @@
 
 #features {
   top: 0;
-  height: 100px;
+  height: 110px;
   margin-top: 20px;
   width: 250px;
   padding: 10px;
+  z-index: 10;
+
 }
 
 #legend {
@@ -38,7 +41,8 @@
   line-height: 18px;
   height: 150px;
   margin-bottom: 40px;
-  width: 120px;
+  width: 140px;
+  z-index: 10;
 }
 
 .legend-key {

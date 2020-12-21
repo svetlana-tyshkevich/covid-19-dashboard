@@ -23,7 +23,7 @@ export default class App {
       const countries = this.model.getSummaryData();
       if (countries && countries.length > 0) {
         this.list.update(countries);
-      this.map.update(countries);
+        this.map.update(countries);
       }
     });
     this.model.listen(() => {
@@ -35,6 +35,7 @@ export default class App {
 
     this.model.requestSummaryData();
     this.model.requestWorldStatus({ daysBeforeNow: 90 });
+  }
 
   append = () => this.element;
 }
