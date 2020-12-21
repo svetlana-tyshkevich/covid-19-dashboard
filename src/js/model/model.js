@@ -18,20 +18,6 @@ const model = {
         model.setData(data, 'summary');
       });
   },
-  // @param country{country name || iso2 || iso3 || country ID code}
-  // requestStatusPerCountry(country) {
-  //   const url = `https://disease.sh/v3/covid-19/countries/${country}?strict=true`;
-  //   fetch(url)
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       if (data.message === 'Not Found') {
-  //         throw new Error('Invalid country name!');
-  //       }
-
-  //       const name = country;
-  //       model.setData(data, name);
-  //     });
-  // },
   requestWorldStatus({ daysBeforeNow }) {
     const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${daysBeforeNow}`;
     fetch(url)
