@@ -37,6 +37,7 @@ const model = {
         });
     }
   },
+
   requestStatusPerCountry(country) {
     const url = `https://disease.sh/v3/covid-19/countries/${country}?strict=true`;
     fetch(url)
@@ -87,12 +88,16 @@ const model = {
   getSummaryData() {
     return model?.data?.summary || [];
   },
-  getDate() {
-
+  getDataByCountry(countryCode) {
+    return (
+      model?.data?.summary.find(
+        (country) => countryCode === country.countryInfo.iso2
+          || countryCode === country.countryInfo.name_en,
+      ) || []
+    );
   },
-  getStatus() {
-
-  },
+  getDate() {},
+  getStatus() {},
   getWorldStatus() {
     return model?.data?.allStatus || [];
   },
