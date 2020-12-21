@@ -3,6 +3,7 @@ const model = {
   state: {
     case: 'cases',
     country: 'global',
+    sort: 'default',
   },
   components: [],
   observers: [],

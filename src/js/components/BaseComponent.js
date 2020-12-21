@@ -14,6 +14,7 @@ export default class BaseComponent {
     this.state = {
       case: 'cases',
       country: 'global',
+      sort: 'default',
     };
 
     this.resizeButton = this.wrap.querySelector('.resize-button');
