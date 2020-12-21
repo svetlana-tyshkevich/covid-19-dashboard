@@ -33,7 +33,7 @@ export default class App {
     });
 
     this.model.requestSummaryData();
-    this.model.requestWorldStatus({ daysBeforeNow: 90 });
+    this.model.requestWorldStatus();
   }
 
   append = () => this.element;

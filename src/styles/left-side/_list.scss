@@ -47,6 +47,7 @@
   justify-content: flex-start;
   padding: 5px;
   border-top: 1px solid rgba(255, 255, 255, .5);
+  cursor: pointer;
   &:first-child {
     border-top: 0;
   }
@@ -62,12 +63,15 @@
       display: block;
     }
   }
+  &.active {
+    background: $light-black;
+  }
 }
 
 .list__item-cases {
   margin: 0 0 0 auto;
 
-  &.confirmed {
+  &.cases {
     color: $blue;
   }
   &.recovered {
