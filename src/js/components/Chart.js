@@ -201,7 +201,7 @@ export default class ChartBoard extends BaseComponent {
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
       ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
-      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
+      ['Daily recovered', [['tab', 'recovered'], ['sort', 'daily']]],
       // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
       // ['Per 100k population confirmed', [['tab', 'cases']]],
       // ['Per 100k population recovered', [['tab', 'recovered']]],
