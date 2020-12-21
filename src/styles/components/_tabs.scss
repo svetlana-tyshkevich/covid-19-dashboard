@@ -6,6 +6,41 @@
   position: absolute;
   bottom: -26px;
   left: -1px;
+
+  &.slider {
+    width: calc(100% + 2px);
+    .tab {
+      display: none;
+      width: 100%;
+      cursor: unset;
+      &.active {
+        display: flex;
+      }
+    }
+  }
+}
+
+.tab__arrow {
+  width: 26px;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &.left {
+    top: 0;
+    left: 0;
+  }
+  &.right {
+    top: 0;
+    right: 0;
+  }
+
+  &:hover {
+    background: $white-transp;
+  }
 }
 
 .tab {
@@ -22,7 +57,7 @@
   cursor: pointer;
 }
 
-[data-tab="confirmed"] {
+[data-tab="cases"] {
   &.active, &:hover {
     background: $blue;
     transition: all .3s linear;
