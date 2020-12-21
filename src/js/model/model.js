@@ -33,7 +33,6 @@ const model = {
   getSummaryData() {
     return model?.data?.summary || [];
   },
-  // eslint-disable-next-line no-unused-vars
   getDataByCountry(countryCode) {
     return (
       model?.data?.summary.find(

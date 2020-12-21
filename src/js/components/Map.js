@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+import mapboxgl from 'mapbox-gl';
 import model from '../model/model';
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
@@ -12,7 +12,7 @@ export default class WorldMap extends BaseComponent {
       dataAttr: [['id', 'mapBox']],
     });
     this.wrap.append(this.mapBox);
-
+    this.isStarted = false;
     this.model = model;
     this.state = 'deaths';
   }
@@ -261,12 +261,15 @@ export default class WorldMap extends BaseComponent {
 
   update = (data) => {
     this.data = [...data];
-    this.init();
-    this.createMap();
-    this.loaded();
+    if (!this.isStarted) {
+      this.init();
+      this.createMap();
+      this.loaded();
+    }
   };
 
   init = () => {
+    this.isStarted = true;
     this.wrap.addEventListener('click', this.handleEvent);
   };
 }
