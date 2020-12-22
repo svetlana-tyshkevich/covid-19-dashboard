@@ -16,57 +16,56 @@ export default class ChartBoard extends BaseComponent {
     this.isWaiting = false;
 
     this.model.listen(() => {
+      const data = this.model.getWorldStatus();
       if (!this.isStarted) {
-        const data = this.model.getWorldStatus();
         this.update(data);
       }
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
-        const cases = state.case;
 
-        if (stateCountryCode !== this.state.country) {
+        if (stateCountryCode !== 'global') {
           if (!this.isWaiting) {
             this.isWaiting = true;
             this.model.requestCountryStatus(stateCountryCode);
           } else {
             this.isWaiting = false;
             const { timeline } = this.model.getCountryDaily();
-            this.update(timeline);
             this.setState(state);
+            this.update(timeline);
           }
-        } else if (cases !== this.state.case) {
-          this.tabListener(cases);
+        } else {
           this.setState(state);
+          this.update(data);
         }
       }
     });
   }
 
   toDeily = (cases) => {
-    const data = [...this.createDate(cases)];
-    const simularData = [...this.createDate(cases)];
+    const data = [...this.createData(cases)];
+    const simularData = [...this.createData(cases)];
     const result = [];
     data.forEach((el, ind) => {
       const val = el.value;
       const prevValue = simularData[ind - 1]?.value || 0;
-      const num = val - prevValue;
+      let num = val - prevValue;
+      if (num < 0) { num = Math.abs(num) / 10; }
       result.push({ date: el.date, value: num });
     });
     return result;
   }
 
-  createDate = (cases) => {
+  createData = (cases) => {
     const category = this.data[cases];
     const arrayFromCases = Object.keys(category);
     const data = arrayFromCases.reduce((acc, el) => {
       const strToDate = el.split('/');
       const [mounth, day, year] = strToDate;
-      const dateItem = new Date(+`20${year}`, mounth, day);
+      const dateItem = new Date(+`20${year}`, (mounth - 1), day);
       acc.push({ date: dateItem, value: category[el] });
       return acc;
     }, []);
-
     return data;
   }
 
@@ -86,45 +85,47 @@ export default class ChartBoard extends BaseComponent {
   }
 
   createChart = (cases) => {
-    this.isChartOn = true;
-    am4core.useTheme(amThem);
-    am4core.useTheme(amAnimation);
+    setTimeout(() => {
+      this.isChartOn = true;
+      am4core.useTheme(amThem);
+      am4core.useTheme(amAnimation);
 
-    this.chart = am4core.create(this.chartBox, am4charts.XYChart);
-    this.chart.paddingRight = 20;
+      this.chart = am4core.create(this.chartBox, am4charts.XYChart);
+      this.chart.paddingRight = 20;
 
-    const color = this.setColor(cases);
-    this.chart.colors.list = [
-      am4core.color(color),
-    ];
+      const color = this.setColor(cases);
+      this.chart.colors.list = [
+        am4core.color(color),
+      ];
 
-    let data;
-    if (!Array.isArray(this.data)) {
-      data = this.createDate(cases);
-    } else {
-      data = this.data;
-    }
-    this.chart.data = data;
+      let data;
+      if (!Array.isArray(this.data)) {
+        data = this.createData(cases);
+      } else {
+        data = this.data;
+      }
+      this.chart.data = data;
 
-    const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
-    this.chart.yAxes.push(new am4charts.ValueAxis());
-    const series = this.chart.series.push(new am4charts.LineSeries());
-    this.chart.cursor = new am4charts.XYCursor();
+      const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
+      this.chart.yAxes.push(new am4charts.ValueAxis());
+      const series = this.chart.series.push(new am4charts.LineSeries());
+      this.chart.cursor = new am4charts.XYCursor();
 
-    // Settings
-    dateAxis.renderer.grid.template.location = 0;
-    dateAxis.minZoomCount = 5;
-    dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
-    series.dataFields.dateX = 'date';
-    series.dataFields.valueY = 'value';
-    series.tooltipText = '{valueY}';
-    series.tooltip.pointerOrientation = 'vertical';
-    series.tooltip.background.fillOpacity = 0.5;
-    series.strokeWidth = 3;
-    series.fillOpacity = 0.5;
+      // Settings
+      dateAxis.renderer.grid.template.location = 0;
+      dateAxis.minZoomCount = 5;
+      dateAxis.groupData = true;
+      dateAxis.groupCount = 500;
+      series.dataFields.dateX = 'date';
+      series.dataFields.valueY = 'value';
+      series.tooltipText = '{valueY}';
+      series.tooltip.pointerOrientation = 'vertical';
+      series.tooltip.background.fillOpacity = 0.5;
+      series.strokeWidth = 3;
+      series.fillOpacity = 0.5;
 
-    this.chart.cursor.xAxis = dateAxis;
+      this.chart.cursor.xAxis = dateAxis;
+    }, 0);
   }
 
   updateChart = (cases) => {
@@ -138,7 +139,6 @@ export default class ChartBoard extends BaseComponent {
 
   handleEvent = (event) => {
     const { target } = event;
-    // const [confirmed, recovered, deaths] = this.tabItems;
     const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
     const prev = (positonActive > 0)
       ? this.tabItems[positonActive - 1]
@@ -161,26 +161,29 @@ export default class ChartBoard extends BaseComponent {
     let element;
     if (typeof target === 'string') {
       element = this.tabItems.find((el) => el.dataset.tab === target);
-      if (target === 'cases') {
-        this.updateChart(target);
-      } else if (target === 'recovered') {
-        this.updateChart(target);
-      } else if (target === 'deaths') {
-        this.updateChart(target);
-      }
     } else if (!target.closest('.active')) {
       element = target;
-      if (element?.dataset?.sort === 'daily') {
-        this.data = this.toDeily(element.dataset.tab);
-      }
+    }
+    setTimeout(() => {
       this.updateChart(element.dataset.tab);
       this.model.setState('case', element.dataset.tab);
-    }
-
+    }, 0);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
     element.classList.add('active');
+  }
+
+  perTausend = (array) => {
+    const data = [];
+    const population = 7800000000;
+    const per = 100000;
+    array.forEach((item) => {
+      const { value } = item;
+      const num = Math.floor((value / population) * per);
+      data.push({ date: item.date, value: num });
+    });
+    return data;
   }
 
   update = (data) => {
@@ -190,8 +193,15 @@ export default class ChartBoard extends BaseComponent {
     }
     this.data = data;
     this.createChart(this.state.case);
-
-    this.toDeily('cases');
+    const cases = this.state.case;
+    const { period, abs, country } = this.state;
+    if (period) {
+      this.data = this.toDeily(cases);
+    } else if (abs && country === 'global') {
+      const dataPer100k = this.perTausend(this.createData(cases));
+      this.data = dataPer100k;
+    }
+    this.tabListener(cases);
   }
 
   init = () => {
@@ -200,15 +210,6 @@ export default class ChartBoard extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
-      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
-      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
-      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
-      // ['Per 100k population confirmed', [['tab', 'cases']]],
-      // ['Per 100k population recovered', [['tab', 'recovered']]],
-      // ['Per 100k population deaths', [['tab', 'deaths']]],
-      // ['Daily per 100k confirmed', [['tab', 'cases']]],
-      // ['Daily per 100k recovered', [['tab', 'recovered']]],
-      // ['Daily per 100k deaths', [['tab', 'deaths']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;

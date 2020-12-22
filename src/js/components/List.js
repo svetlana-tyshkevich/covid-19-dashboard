@@ -10,16 +10,29 @@ export default class List extends BaseComponent {
 
     this.model.listen(() => {
       const countries = this.model.getSummaryData();
-      if (countries?.length > 0) {
-        this.update(countries);
+      if (!this.isStarted) {
+        if (countries?.length > 0) {
+          this.update(countries);
+        }
       }
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const cases = state.case;
+        const { period, abs, country } = state;
 
-        if (cases !== this.state.case) {
-          this.tabListener(cases);
+        if (country !== this.state.country) {
           this.setState(state);
+          this.listListener(country);
+        } else if (cases !== this.state.case) {
+          this.setState(state);
+          this.tabListener(cases);
+          this.listListener(country);
+        }
+
+        if (period !== this.state.period || abs !== this.state.abs) {
+          this.setState(state);
+          this.tabListener(cases);
+          this.listListener(country);
         }
       }
     });
@@ -111,37 +124,45 @@ export default class List extends BaseComponent {
   }
 
   listListener = (target) => {
-    if (!target.closest('.active')) {
-      this.model.setState('country', target.dataset.country);
+    if (target !== 'global') {
+      setTimeout(() => {
+        const listItems = [...this.list.children];
+        let element;
+        if (typeof target === 'string') {
+          element = listItems.find((el) => el.dataset.country === target);
+        } else if (!target.closest('.active')) {
+          element = target;
+          this.model.setState('country', element.dataset.country);
+        }
+        listItems.forEach((el) => {
+          el.classList.remove('active');
+        });
+        element.classList.add('active');
+      }, 0);
     }
-    const listItems = [...this.list.children];
-    listItems.forEach((el) => {
-      el.classList.remove('active');
-    });
-    target.classList.add('active');
   }
 
   tabListener = (target) => {
     let element;
     if (typeof target === 'string') {
       element = this.tabItems.find((el) => el.dataset.tab === target);
-      if (target === 'cases') {
-        this.createList(target);
-      } else if (target === 'recovered') {
-        this.createList(target);
-      } else if (target === 'deaths') {
-        this.createList(target);
-      }
     } else if (!target.closest('.active')) {
       element = target;
-      if (element?.dataset?.sort === 'daily') {
-        const cases = this.createString('today', target.dataset.tab);
-        this.createList(cases);
-      } else {
-        this.createList(target.dataset.tab);
-      }
-      this.model.setState('case', target.dataset.tab);
     }
+    let newCases;
+    if (this.state.abs && this.state.period) {
+      newCases = `${this.createString('today', this.state.case)}Per100k`;
+      this.createList(newCases);
+    } else if (this.state.abs) {
+      newCases = `${this.state.case}Per100k`;
+      this.createList(newCases);
+    } else if (this.state.period) {
+      newCases = this.createString('today', this.state.case);
+      this.createList(newCases);
+    } else {
+      this.createList(this.state.case);
+    }
+    this.model.setState('case', element.dataset.tab);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
@@ -154,9 +175,6 @@ export default class List extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
-      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
-      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
-      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;
