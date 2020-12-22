@@ -18,8 +18,31 @@ export default class List extends BaseComponent {
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const cases = state.case;
+        const { abs, period, country } = state;
+
+        let newCases;
+        if (country !== this.state.country) {
+          this.listListener(country);
+        } else if (cases !== this.state.case) {
+          this.tabListener(cases);
+          this.listListener(country);
+        }
+
+        if (period !== this.state.period || abs !== this.state.abs) {
+          if (abs && period) {
+            // Тут для обоих показателей сразу
+            this.createList(this.state.case);
+          } else if (abs) {
+            newCases = `${this.state.case}Per100k`;
+            this.createList(newCases);
+          } else if (period) {
+            newCases = this.createString('today', this.state.case);
+            this.createList(newCases);
+          } else {
+            this.createList(cases);
+          }
+        }
         this.setState(state);
-        this.tabListener(cases);
       }
     });
 
@@ -110,14 +133,20 @@ export default class List extends BaseComponent {
   }
 
   listListener = (target) => {
-    if (!target.closest('.active')) {
-      this.model.setState('country', target.dataset.country);
-    }
-    const listItems = [...this.list.children];
-    listItems.forEach((el) => {
-      el.classList.remove('active');
-    });
-    target.classList.add('active');
+    setTimeout(() => {
+      const listItems = [...this.list.children];
+      let element;
+      if (typeof target === 'string') {
+        element = listItems.find((el) => el.dataset.country === target);
+      } else if (!target.closest('.active')) {
+        element = target;
+        this.model.setState('country', element.dataset.country);
+      }
+      listItems.forEach((el) => {
+        el.classList.remove('active');
+      });
+      element.classList.add('active');
+    }, 0);
   }
 
   tabListener = (target) => {
@@ -127,19 +156,7 @@ export default class List extends BaseComponent {
     } else if (!target.closest('.active')) {
       element = target;
     }
-    let cases;
-    if (this.state.abs) {
-      cases = `${element.dataset.tab}Per100k`;
-      this.createList(cases);
-    } else if (this.state.period) {
-      cases = this.createString('today', element.dataset.tab);
-      this.createList(cases);
-    } else if (this.state.period && this.state.abs) {
-      // Тут для обоих показателей сразу
-      this.createList(element.dataset.tab);
-    } else {
-      this.createList(element.dataset.tab);
-    }
+    this.createList(element.dataset.tab);
     this.model.setState('case', element.dataset.tab);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');

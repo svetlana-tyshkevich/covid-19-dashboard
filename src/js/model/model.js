@@ -43,20 +43,23 @@ const model = {
           ];
           const names = [
             'casesPer100k',
-            'recovered100k',
+            'recoveredPer100k',
             'deathsPer100k',
           ];
 
           data.forEach((element) => {
             items.forEach((field, ind) => {
               const item = element[field];
+              const name = names[ind];
               if (item) {
                 const sum = item / 10;
-                const name = names[ind];
                 if (!(name in element)) {
                   // eslint-disable-next-line no-param-reassign
                   element[name] = Math.trunc(sum);
                 }
+              } else {
+                // eslint-disable-next-line no-param-reassign
+                element[name] = 0;
               }
             });
           });

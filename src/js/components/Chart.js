@@ -24,7 +24,7 @@ export default class ChartBoard extends BaseComponent {
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
 
-        if (stateCountryCode !== this.state.country) {
+        if (stateCountryCode !== 'global') {
           if (!this.isWaiting) {
             this.isWaiting = true;
             this.model.requestCountryStatus(stateCountryCode);
@@ -43,8 +43,8 @@ export default class ChartBoard extends BaseComponent {
   }
 
   toDeily = (cases) => {
-    const data = [...this.createDate(cases)];
-    const simularData = [...this.createDate(cases)];
+    const data = [...this.createData(cases)];
+    const simularData = [...this.createData(cases)];
     const result = [];
     data.forEach((el, ind) => {
       const val = el.value;
@@ -56,17 +56,16 @@ export default class ChartBoard extends BaseComponent {
     return result;
   }
 
-  createDate = (cases) => {
+  createData = (cases) => {
     const category = this.data[cases];
     const arrayFromCases = Object.keys(category);
     const data = arrayFromCases.reduce((acc, el) => {
       const strToDate = el.split('/');
       const [mounth, day, year] = strToDate;
-      const dateItem = new Date(+`20${year}`, mounth, day);
+      const dateItem = new Date(+`20${year}`, (mounth - 1), day);
       acc.push({ date: dateItem, value: category[el] });
       return acc;
     }, []);
-
     return data;
   }
 
@@ -100,7 +99,7 @@ export default class ChartBoard extends BaseComponent {
 
     let data;
     if (!Array.isArray(this.data)) {
-      data = this.createDate(cases);
+      data = this.createData(cases);
     } else {
       data = this.data;
     }
@@ -165,11 +164,22 @@ export default class ChartBoard extends BaseComponent {
     }
     this.updateChart(element.dataset.tab);
     this.model.setState('case', element.dataset.tab);
-    // sum population 7 827 000 000
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
     element.classList.add('active');
+  }
+
+  perTausend = (array) => {
+    const data = [];
+    const population = 7800000000;
+    const per = 100000;
+    array.forEach((item) => {
+      const { value } = item;
+      const num = Math.floor((value / population) * per);
+      data.push({ date: item.date, value: num });
+    });
+    return data;
   }
 
   update = (data) => {
@@ -180,9 +190,12 @@ export default class ChartBoard extends BaseComponent {
     this.data = data;
     this.createChart(this.state.case);
     const cases = this.state.case;
-    const { period } = this.state;
+    const { period, abs, country } = this.state;
     if (period) {
       this.data = this.toDeily(cases);
+    } else if (abs && country === 'global') {
+      const dataPer100k = this.perTausend(this.createData(cases));
+      this.data = dataPer100k;
     }
     this.tabListener(cases);
   }
