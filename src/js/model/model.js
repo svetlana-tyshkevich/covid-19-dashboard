@@ -36,21 +36,32 @@ const model = {
       fetch('https://disease.sh/v3/covid-19/countries')
         .then((res) => res.json())
         .then((data) => {
-          const items = [
+          const per = 100000;
+          const perMillion = [
             'casesPerOneMillion',
             'recoveredPerOneMillion',
             'deathsPerOneMillion',
           ];
-          const names = [
+          const per100k = [
             'casesPer100k',
             'recoveredPer100k',
             'deathsPer100k',
           ];
+          const perDay = [
+            'todayCases',
+            'todayRecovered',
+            'todayDeaths',
+          ];
+          const perDay100k = [
+            'todayCasesPer100k',
+            'todayRecoveredPer100k',
+            'todayDeathsPer100k',
+          ];
 
           data.forEach((element) => {
-            items.forEach((field, ind) => {
+            perMillion.forEach((field, ind) => {
               const item = element[field];
-              const name = names[ind];
+              const name = per100k[ind];
               if (item) {
                 const sum = item / 10;
                 if (!(name in element)) {
@@ -62,8 +73,22 @@ const model = {
                 element[name] = 0;
               }
             });
+            perDay.forEach((field, ind) => {
+              const item = element[field];
+              const name = perDay100k[ind];
+              if (item) {
+                const sum = (item / element.population) * per;
+                if (!(name in element)) {
+                  // eslint-disable-next-line no-param-reassign
+                  element[name] = Math.trunc(sum);
+                }
+              } else {
+                // eslint-disable-next-line no-param-reassign
+                element[name] = 0;
+              }
+            });
           });
-
+          console.log('data is: ', data);
           model.setData(data, 'summary');
         });
     }

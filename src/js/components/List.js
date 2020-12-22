@@ -30,8 +30,8 @@ export default class List extends BaseComponent {
 
         if (period !== this.state.period || abs !== this.state.abs) {
           if (abs && period) {
-            // Тут для обоих показателей сразу
-            this.createList(this.state.case);
+            newCases = `${this.createString('today', this.state.case)}Per100k`;
+            this.createList(newCases);
           } else if (abs) {
             newCases = `${this.state.case}Per100k`;
             this.createList(newCases);
