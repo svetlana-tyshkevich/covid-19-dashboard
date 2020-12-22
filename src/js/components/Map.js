@@ -67,9 +67,6 @@ export default class WorldMap extends BaseComponent {
         type: 'geojson',
         data: geoJson,
       });
-
-      this.createLegend(this.state.case);
-      this.createCircleLayer(this.state.case);
     });
 
     this.map.on('mousemove', 'country-boundaries', (e) => {
@@ -200,6 +197,177 @@ export default class WorldMap extends BaseComponent {
         '#005a32',
       ];
     }
+    if (target === 'todayDeaths') {
+      range = [
+        'step',
+        ['get', 'todayDeaths'],
+        '#fee5d9',
+        100,
+        '#fcbba1',
+        300,
+        '#fc9272',
+        500,
+        '#fb6a4a',
+        800,
+        '#ef3b2c',
+        1200,
+        '#cb181d',
+        1500,
+        '#99000d',
+      ];
+    }
+    if (target === 'todayCases') {
+      range = [
+        'step',
+        ['get', 'todayCases'],
+        '#eff3ff',
+        200,
+        '#c6dbef',
+        500,
+        '#9ecae1',
+        1000,
+        '#6baed6',
+        5000,
+        '#4292c6',
+        10000,
+        '#2171b5',
+        30000,
+        '#084594',
+      ];
+    }
+    if (target === 'todayRecovered') {
+      range = [
+        'step',
+        ['get', 'todayRecovered'],
+        '#edf8e9',
+        200,
+        '#c7e9c0',
+        500,
+        '#a1d99b',
+        1000,
+        '#74c476',
+        5000,
+        '#41ab5d',
+        10000,
+        '#238b45',
+        30000,
+        '#005a32',
+      ];
+    }
+    if (target === 'deathsPer100k') {
+      range = [
+        'step',
+        ['get', 'deathsPer100k'],
+        '#fee5d9',
+        5,
+        '#fcbba1',
+        10,
+        '#fc9272',
+        20,
+        '#fb6a4a',
+        50,
+        '#ef3b2c',
+        80,
+        '#cb181d',
+        100,
+        '#99000d',
+      ];
+    }
+    if (target === 'casesPer100k') {
+      range = [
+        'step',
+        ['get', 'casesPer100k'],
+        '#eff3ff',
+        50,
+        '#c6dbef',
+        200,
+        '#9ecae1',
+        500,
+        '#6baed6',
+        1000,
+        '#4292c6',
+        3000,
+        '#2171b5',
+        5000,
+        '#084594',
+      ];
+    }
+    if (target === 'recoveredPer100k') {
+      range = [
+        'step',
+        ['get', 'recoveredPer100k'],
+        '#edf8e9',
+        50,
+        '#c7e9c0',
+        200,
+        '#a1d99b',
+        500,
+        '#74c476',
+        1000,
+        '#41ab5d',
+        3000,
+        '#238b45',
+        5000,
+        '#005a32',
+      ];
+    }
+    if (target === 'todayDeathsPer100k') {
+      range = [
+        'step',
+        ['get', 'todayDeathsPer100k'],
+        '#fee5d9',
+        0.1,
+        '#fcbba1',
+        0.3,
+        '#fc9272',
+        0.6,
+        '#fb6a4a',
+        1.0,
+        '#ef3b2c',
+        1.4,
+        '#cb181d',
+        1.8,
+        '#99000d',
+      ];
+    }
+    if (target === 'todayCasesPer100k') {
+      range = [
+        'step',
+        ['get', 'todayCasesPer100k'],
+        '#eff3ff',
+        2,
+        '#c6dbef',
+        5,
+        '#9ecae1',
+        10,
+        '#6baed6',
+        25,
+        '#4292c6',
+        50,
+        '#2171b5',
+        100,
+        '#084594',
+      ];
+    }
+    if (target === 'todayRecoveredPer100k') {
+      range = [
+        'step',
+        ['get', 'todayRecoveredPer100k'],
+        '#edf8e9',
+        2,
+        '#c7e9c0',
+        5,
+        '#a1d99b',
+        10,
+        '#74c476',
+        25,
+        '#41ab5d',
+        50,
+        '#238b45',
+        100,
+        '#005a32',
+      ];
+    }
 
     this.map.removeLayer('country-circle');
     this.map.addLayer({
@@ -219,16 +387,12 @@ export default class WorldMap extends BaseComponent {
   createLegend = (indicator) => {
     let layers = [];
     let colors = [];
-    if (indicator === 'cases') {
-      layers = [
-        '0-10K',
-        '10K-50K',
-        '50K-100K',
-        '100K-200K',
-        '200K-500K',
-        '500K-1M',
-        '1M+',
-      ];
+    if (
+      indicator === 'cases'
+      || indicator === 'todayCases'
+      || indicator === 'casesPer100k'
+      || indicator === 'todayCasesPer100k'
+    ) {
       colors = [
         '#eff3ff',
         '#c6dbef',
@@ -238,17 +402,58 @@ export default class WorldMap extends BaseComponent {
         '#2171b5',
         '#084594',
       ];
+
+      if (indicator === 'cases') {
+        layers = [
+          '0-10K',
+          '10K-50K',
+          '50K-100K',
+          '100K-200K',
+          '200K-500K',
+          '500K-1M',
+          '1M+',
+        ];
+      }
+      if (indicator === 'todayCases') {
+        layers = [
+          '0-200',
+          '200-500',
+          '500-1K',
+          '1K-5K',
+          '5K-10K',
+          '10K-30K',
+          '30K+',
+        ];
+      }
+      if (indicator === 'casesPer100k') {
+        layers = [
+          '0-50',
+          '50-200',
+          '200-500',
+          '500-1K',
+          '1K-3K',
+          '3K-5K',
+          '5K+',
+        ];
+      }
+      if (indicator === 'todayCasesPer100k') {
+        layers = [
+          '0-2',
+          '2-5',
+          '5-10',
+          '10-25',
+          '25-50',
+          '50-100',
+          '100+',
+        ];
+      }
     }
-    if (indicator === 'deaths') {
-      layers = [
-        '0-500',
-        '500-1K',
-        '1K-5K',
-        '5K-10K',
-        '10K-20K',
-        '20K-50K',
-        '50K+',
-      ];
+    if (
+      indicator === 'deaths'
+      || indicator === 'todayDeaths'
+      || indicator === 'deathsPer100k'
+      || indicator === 'todayDeathsPer100k'
+    ) {
       colors = [
         '#fee5d9',
         '#fcbba1',
@@ -257,6 +462,66 @@ export default class WorldMap extends BaseComponent {
         '#ef3b2c',
         '#cb181d',
         '#99000d',
+      ];
+      if (indicator === 'deaths') {
+        layers = [
+          '0-500',
+          '500-1K',
+          '1K-5K',
+          '5K-10K',
+          '10K-20K',
+          '20K-50K',
+          '50K+',
+        ];
+      }
+      if (indicator === 'todayDeaths') {
+        layers = [
+          '0-100',
+          '100-00',
+          '300-500',
+          '500-800',
+          '800-1.2K',
+          '1.2K-1.5K',
+          '1.5K+',
+        ];
+      }
+      if (indicator === 'todayDeathsPer100k') {
+        layers = [
+          '0-0.1',
+          '0.1-0.3',
+          '0.3-0.6',
+          '0.6-1',
+          '1-1.4K',
+          '1.4-1.8',
+          '1.8+',
+        ];
+      }
+      if (indicator === 'deathsPer100k') {
+        layers = [
+          '0-5',
+          '5-10',
+          '10-20',
+          '20-50',
+          '50-80',
+          '80-100',
+          '100+',
+        ];
+      }
+    }
+    if (
+      indicator === 'recovered'
+      || indicator === 'todayRecovered'
+      || indicator === 'recoveredPer100k'
+      || indicator === 'todayRecoveredPer100k'
+    ) {
+      colors = [
+        '#edf8e9',
+        '#c7e9c0',
+        '#a1d99b',
+        '#74c476',
+        '#41ab5d',
+        '#238b45',
+        '#005a32',
       ];
     }
     if (indicator === 'recovered') {
@@ -269,15 +534,31 @@ export default class WorldMap extends BaseComponent {
         '200K-500K',
         '500K+',
       ];
-      colors = [
-        '#edf8e9',
-        '#c7e9c0',
-        '#a1d99b',
-        '#74c476',
-        '#41ab5d',
-        '#238b45',
-        '#005a32',
+    }
+    if (indicator === 'todayRecovered') {
+      layers = [
+        '0-200',
+        '200-500',
+        '500-1K',
+        '1K-5K',
+        '5K-10K',
+        '10K-30K',
+        '30K+',
       ];
+    }
+    if (indicator === 'recoveredPer100k') {
+      layers = [
+        '0-50',
+        '50-200',
+        '200-500',
+        '500-1K',
+        '1K-3K',
+        '3K-5K',
+        '5K+',
+      ];
+    }
+    if (indicator === 'todayRecoveredPer100k') {
+      layers = ['0-2', '2-5', '5-10', '10-25', '25-50', '50-100', '100+'];
     }
 
     document.getElementById('legend').innerHTML = '';
@@ -321,37 +602,42 @@ export default class WorldMap extends BaseComponent {
     } else if (!target.closest('.active')) {
       element = target;
     }
-    let cases;
-    if (this.state.abs) {
-      cases = `${element.dataset.tab}Per100k`;
-      this.createCircleLayer(cases);
-      this.createLegend(cases);
+    let newCases;
+    if (this.state.abs && this.state.period) {
+      newCases = `${this.createString('today', this.state.case)}Per100k`;
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
+    } else if (this.state.abs) {
+      newCases = `${this.state.case}Per100k`;
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
     } else if (this.state.period) {
-      cases = this.createString('today', element.dataset.tab);
-      this.createCircleLayer(cases);
-      this.createLegend(cases);
-    } else if (this.state.period && this.state.abs) {
-      // Тут для обоих показателей сразу
-      this.createCircleLayer(element.dataset.tab);
-      this.createLegend(element.dataset.tab);
+      newCases = this.createString('today', this.state.case);
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
     } else {
-      this.createCircleLayer(element.dataset.tab);
-      this.createLegend(element.dataset.tab);
+      this.createCircleLayer(this.state.case);
+      this.createLegend(this.state.case);
     }
     this.model.setState('case', element.dataset.tab);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
     element.classList.add('active');
-  };
+  }
 
   update = (data) => {
     this.data = [...data];
+
     if (!this.isStarted) {
       this.init();
       this.createMap();
       this.loaded();
     }
+    this.map.on('load', () => {
+      this.createLegend(this.state.case);
+      this.createCircleLayer(this.state.case);
+    });
   };
 
   init = () => {
