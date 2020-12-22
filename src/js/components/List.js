@@ -10,17 +10,16 @@ export default class List extends BaseComponent {
 
     this.model.listen(() => {
       const countries = this.model.getSummaryData();
-      if (countries?.length > 0) {
-        this.update(countries);
+      if (!this.isStarted) {
+        if (countries?.length > 0) {
+          this.update(countries);
+        }
       }
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const cases = state.case;
-
-        if (cases !== this.state.case) {
-          this.tabListener(cases);
-          this.setState(state);
-        }
+        this.setState(state);
+        this.tabListener(cases);
       }
     });
 
@@ -125,23 +124,23 @@ export default class List extends BaseComponent {
     let element;
     if (typeof target === 'string') {
       element = this.tabItems.find((el) => el.dataset.tab === target);
-      if (target === 'cases') {
-        this.createList(target);
-      } else if (target === 'recovered') {
-        this.createList(target);
-      } else if (target === 'deaths') {
-        this.createList(target);
-      }
     } else if (!target.closest('.active')) {
       element = target;
-      if (element?.dataset?.sort === 'daily') {
-        const cases = this.createString('today', target.dataset.tab);
-        this.createList(cases);
-      } else {
-        this.createList(target.dataset.tab);
-      }
-      this.model.setState('case', target.dataset.tab);
     }
+    let cases;
+    if (this.state.abs) {
+      cases = `${element.dataset.tab}Per100k`;
+      this.createList(cases);
+    } else if (this.state.period) {
+      cases = this.createString('today', element.dataset.tab);
+      this.createList(cases);
+    } else if (this.state.period && this.state.abs) {
+      // Тут для обоих показателей сразу
+      this.createList(element.dataset.tab);
+    } else {
+      this.createList(element.dataset.tab);
+    }
+    this.model.setState('case', element.dataset.tab);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
@@ -154,9 +153,6 @@ export default class List extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
-      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
-      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
-      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;

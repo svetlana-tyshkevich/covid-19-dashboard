@@ -3,7 +3,8 @@ const model = {
   state: {
     case: 'cases',
     country: 'global',
-    sort: 'default',
+    period: false,
+    abs: false,
   },
   components: [],
   observers: [],
@@ -13,8 +14,10 @@ const model = {
     this.notifyObservers();
   },
   setState(key, data) {
-    this.state[key] = data;
-    this.notifyObservers();
+    if (this.state[key] !== data) {
+      this.state[key] = data;
+      this.notifyObservers();
+    }
   },
   getState() {
     return this.state;
@@ -33,6 +36,31 @@ const model = {
       fetch('https://disease.sh/v3/covid-19/countries')
         .then((res) => res.json())
         .then((data) => {
+          const items = [
+            'casesPerOneMillion',
+            'recoveredPerOneMillion',
+            'deathsPerOneMillion',
+          ];
+          const names = [
+            'casesPer100k',
+            'recovered100k',
+            'deathsPer100k',
+          ];
+
+          data.forEach((element) => {
+            items.forEach((field, ind) => {
+              const item = element[field];
+              if (item) {
+                const sum = item / 10;
+                const name = names[ind];
+                if (!(name in element)) {
+                  // eslint-disable-next-line no-param-reassign
+                  element[name] = Math.trunc(sum);
+                }
+              }
+            });
+          });
+
           model.setData(data, 'summary');
         });
     }
