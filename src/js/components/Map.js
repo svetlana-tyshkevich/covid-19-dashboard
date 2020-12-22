@@ -1,5 +1,6 @@
 import mapboxgl from 'mapbox-gl';
-import model from '../model/model';
+import * as _ from 'lodash';
+// import model from '../model/model';
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
 
@@ -13,13 +14,26 @@ export default class WorldMap extends BaseComponent {
     });
     this.wrap.append(this.mapBox);
     this.isStarted = false;
-    this.model = model;
-    this.state = 'deaths';
+    this.model.listen(() => {
+      const countriesData = this.model.getSummaryData();
+      if (countriesData?.length > 0) {
+        this.update(countriesData);
+      }
+      const state = this.model.getState();
+      if (!_.isEqual(this.state, state)) {
+        const cases = state.case;
+
+        if (cases !== this.state.case) {
+          this.tabListener(cases);
+          this.setState(state);
+        }
+      }
+    });
   }
 
   createMap = () => {
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9hY2hidSIsImEiOiJja2lyNGFzOWEwa2JvMzBsM3hhMWR0cndtIn0.oNhrKokZtda7YPWk24DrAw';
-    const map = new mapboxgl.Map({
+    this.map = new mapboxgl.Map({
       container: 'mapBox',
       style: 'mapbox://styles/roachbu/ckir7pnl57ff717qvs68nrrvm',
       center: [53.9015, 27.566],
@@ -28,9 +42,9 @@ export default class WorldMap extends BaseComponent {
     const popup = new mapboxgl.Popup({
       closeButton: false,
     });
-    map.getCanvas().style.cursor = 'default';
+    this.map.getCanvas().style.cursor = 'default';
 
-    map.on('load', () => {
+    this.map.on('load', () => {
       const geoJson = {
         type: 'FeatureCollection',
         features: this.data.map((country = {}) => {
@@ -49,169 +63,18 @@ export default class WorldMap extends BaseComponent {
         }),
       };
 
-      console.log(geoJson);
-
-      map.addSource('countries', {
+      this.map.addSource('countries', {
         type: 'geojson',
         data: geoJson,
       });
 
-      let range;
-      if (this.state === 'deaths') {
-        range = [
-          'step',
-          ['get', 'deaths'],
-          '#fee5d9',
-          500,
-          '#fcbba1',
-          1000,
-          '#fc9272',
-          5000,
-          '#fb6a4a',
-          10000,
-          '#ef3b2c',
-          20000,
-          '#cb181d',
-          50000,
-          '#99000d',
-        ];
-      }
-      if (this.state === 'cases') {
-        range = [
-          'step',
-          ['get', 'cases'],
-          '#eff3ff',
-          10000,
-          '#c6dbef',
-          50000,
-          '#9ecae1',
-          100000,
-          '#6baed6',
-          200000,
-          '#4292c6',
-          500000,
-          '#2171b5',
-          1000000,
-          '#084594',
-        ];
-      }
-      if (this.state === 'recovered') {
-        range = [
-          'step',
-          ['get', 'recovered'],
-          '#edf8e9',
-          5000,
-          '#c7e9c0',
-          10000,
-          '#a1d99b',
-          50000,
-          '#74c476',
-          100000,
-          '#41ab5d',
-          200000,
-          '#238b45',
-          500000,
-          '#005a32',
-        ];
-      }
-
-      map.addLayer({
-        id: 'country-circle',
-        type: 'circle',
-        source: 'countries',
-        paint: {
-          'circle-color': range,
-
-          'circle-radius': 10,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': '#159',
-        },
-      });
-      const getLegend = (indicator) => {
-        let layers = [];
-        let colors = [];
-        if (indicator === 'cases') {
-          layers = [
-            '0-10K',
-            '10K-50K',
-            '50K-100K',
-            '100K-200K',
-            '200K-500K',
-            '500K-1M',
-            '1M+',
-          ];
-          colors = [
-            '#eff3ff',
-            '#c6dbef',
-            '#9ecae1',
-            '#6baed6',
-            '#4292c6',
-            '#2171b5',
-            '#084594',
-          ];
-        }
-        if (indicator === 'deaths') {
-          layers = [
-            '0-500',
-            '500-1K',
-            '1K-5K',
-            '5K-10K',
-            '10K-20K',
-            '20K-50K',
-            '50K+',
-          ];
-          colors = [
-            '#fee5d9',
-            '#fcbba1',
-            '#fc9272',
-            '#fb6a4a',
-            '#ef3b2c',
-            '#cb181d',
-            '#99000d',
-          ];
-        }
-        if (indicator === 'recovered') {
-          layers = [
-            '0-5K',
-            '5K-10K',
-            '10K-50K',
-            '50K-100K',
-            '100K-200K',
-            '200K-500K',
-            '500K+',
-          ];
-          colors = [
-            '#edf8e9',
-            '#c7e9c0',
-            '#a1d99b',
-            '#74c476',
-            '#41ab5d',
-            '#238b45',
-            '#005a32',
-          ];
-        }
-
-        for (let i = 0; i < layers.length; i += 1) {
-          const layer = layers[i];
-          const color = colors[i];
-          const item = document.createElement('div');
-          const key = document.createElement('span');
-          key.className = 'legend-key';
-          key.style.backgroundColor = color;
-
-          const value = document.createElement('span');
-          value.innerHTML = layer;
-          item.appendChild(key);
-          item.appendChild(value);
-          document.getElementById('legend').appendChild(item);
-        }
-      };
-      getLegend(this.state);
+      this.createLegend(this.state.case);
+      this.createCircleLayer(this.state.case);
     });
 
-    map.on('mousemove', 'country-boundaries', (e) => {
+    this.map.on('mousemove', 'country-boundaries', (e) => {
       let popupInner;
-      if (this.state === 'cases') {
+      if (this.state.case === 'cases') {
         popupInner = `<div><strong>${
           e.features[0].properties.name_en
         }</strong></div>
@@ -220,7 +83,7 @@ export default class WorldMap extends BaseComponent {
               .cases || 0
           } cases</div>`;
       }
-      if (this.state === 'deaths') {
+      if (this.state.case === 'deaths') {
         popupInner = `<div><strong>${
           e.features[0].properties.name_en
         }</strong></div>
@@ -229,7 +92,7 @@ export default class WorldMap extends BaseComponent {
               .deaths || 0
           } deaths</div>`;
       }
-      if (this.state === 'recovered') {
+      if (this.state.case === 'recovered') {
         popupInner = `<div><strong>${
           e.features[0].properties.name_en
         }</strong></div>
@@ -239,24 +102,211 @@ export default class WorldMap extends BaseComponent {
           } recovered</div>`;
       }
 
-      popup
-        .setLngLat(e.lngLat)
-        .setHTML(
-          popupInner,
-        )
-        .addTo(map);
+      popup.setLngLat(e.lngLat).setHTML(popupInner).addTo(this.map);
       if (!e.features.length) {
         popup.remove();
       }
     });
-  }
+  };
+
+  createCircleLayer = (target) => {
+    let range;
+    if (target === 'deaths') {
+      range = [
+        'step',
+        ['get', 'deaths'],
+        '#fee5d9',
+        500,
+        '#fcbba1',
+        1000,
+        '#fc9272',
+        5000,
+        '#fb6a4a',
+        10000,
+        '#ef3b2c',
+        20000,
+        '#cb181d',
+        50000,
+        '#99000d',
+      ];
+    }
+    if (target === 'cases') {
+      range = [
+        'step',
+        ['get', 'cases'],
+        '#eff3ff',
+        10000,
+        '#c6dbef',
+        50000,
+        '#9ecae1',
+        100000,
+        '#6baed6',
+        200000,
+        '#4292c6',
+        500000,
+        '#2171b5',
+        1000000,
+        '#084594',
+      ];
+    }
+    if (target === 'recovered') {
+      range = [
+        'step',
+        ['get', 'recovered'],
+        '#edf8e9',
+        5000,
+        '#c7e9c0',
+        10000,
+        '#a1d99b',
+        50000,
+        '#74c476',
+        100000,
+        '#41ab5d',
+        200000,
+        '#238b45',
+        500000,
+        '#005a32',
+      ];
+    }
+
+    this.map.removeLayer('country-circle');
+    this.map.addLayer({
+      id: 'country-circle',
+      type: 'circle',
+      source: 'countries',
+      paint: {
+        'circle-color': range,
+
+        'circle-radius': 10,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#159',
+      },
+    });
+  };
+
+  createLegend = (indicator) => {
+    let layers = [];
+    let colors = [];
+    if (indicator === 'cases') {
+      layers = [
+        '0-10K',
+        '10K-50K',
+        '50K-100K',
+        '100K-200K',
+        '200K-500K',
+        '500K-1M',
+        '1M+',
+      ];
+      colors = [
+        '#eff3ff',
+        '#c6dbef',
+        '#9ecae1',
+        '#6baed6',
+        '#4292c6',
+        '#2171b5',
+        '#084594',
+      ];
+    }
+    if (indicator === 'deaths') {
+      layers = [
+        '0-500',
+        '500-1K',
+        '1K-5K',
+        '5K-10K',
+        '10K-20K',
+        '20K-50K',
+        '50K+',
+      ];
+      colors = [
+        '#fee5d9',
+        '#fcbba1',
+        '#fc9272',
+        '#fb6a4a',
+        '#ef3b2c',
+        '#cb181d',
+        '#99000d',
+      ];
+    }
+    if (indicator === 'recovered') {
+      layers = [
+        '0-5K',
+        '5K-10K',
+        '10K-50K',
+        '50K-100K',
+        '100K-200K',
+        '200K-500K',
+        '500K+',
+      ];
+      colors = [
+        '#edf8e9',
+        '#c7e9c0',
+        '#a1d99b',
+        '#74c476',
+        '#41ab5d',
+        '#238b45',
+        '#005a32',
+      ];
+    }
+
+    document.getElementById('legend').innerHTML = '';
+    for (let i = 0; i < layers.length; i += 1) {
+      const layer = layers[i];
+      const color = colors[i];
+      const item = document.createElement('div');
+      const key = document.createElement('span');
+      key.className = 'legend-key';
+      key.style.backgroundColor = color;
+
+      const value = document.createElement('span');
+      value.innerHTML = layer;
+      item.appendChild(key);
+      item.appendChild(value);
+      document.getElementById('legend').appendChild(item);
+    }
+  };
 
   handleEvent = (event) => {
     const { target } = event;
 
     if (target === this.resizeButton) {
       this.fold();
+    } else if (target?.dataset?.tab) {
+      this.tabListener(target);
+    } else if (target?.dataset?.country) {
+      this.listListener(target);
     }
+  };
+
+  tabListener = (target) => {
+    let element;
+    if (typeof target === 'string') {
+      element = this.tabItems.find((el) => el.dataset.tab === target);
+      if (target === 'cases') {
+        this.createCircleLayer(target);
+        this.createLegend(target);
+      } else if (target === 'recovered') {
+        this.createCircleLayer(target);
+        this.createLegend(target);
+      } else if (target === 'deaths') {
+        this.createCircleLayer(target);
+        this.createLegend(target);
+      }
+    } else if (!target.closest('.active')) {
+      element = target;
+      if (element?.dataset?.sort === 'daily') {
+        const cases = this.createString('today', target.dataset.tab);
+        this.createCircleLayer(cases);
+        this.createLegend(cases);
+      } else {
+        this.createCircleLayer(target.dataset.tab);
+        this.createLegend(target.dataset.tab);
+      }
+      this.model.setState('case', target.dataset.tab);
+    }
+    this.tabItems.forEach((el) => {
+      el.classList.remove('active');
+    });
+    element.classList.add('active');
   };
 
   update = (data) => {
@@ -270,6 +320,19 @@ export default class WorldMap extends BaseComponent {
 
   init = () => {
     this.isStarted = true;
+    const tabs = [
+      ['Confirmed', [['tab', 'cases']]],
+      ['Recovered', [['tab', 'recovered']]],
+      ['Deaths', [['tab', 'deaths']]],
+    ];
+    tabs.forEach((el) => {
+      const [name, data] = el;
+      this.addTab(name, data);
+    });
+    this.tabItems = [...this.tabs.children];
+    const confirmed = this.tabItems[0];
+    confirmed.classList.add('active');
+
     this.wrap.addEventListener('click', this.handleEvent);
   };
 }
