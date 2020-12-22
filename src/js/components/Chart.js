@@ -175,12 +175,21 @@ export default class ChartBoard extends BaseComponent {
   }
 
   perTausend = (array) => {
+    const { country } = this.state;
+    let people = 0;
+    if (country === 'global') {
+      people = 7800000000;
+    } else {
+      const allData = this.model.getSummaryData();
+      const countryFind = allData.find((el) => el.countryInfo.iso2 === country);
+      const { population } = countryFind;
+      people = population;
+    }
     const data = [];
-    const population = 7800000000;
     const per = 100000;
     array.forEach((item) => {
       const { value } = item;
-      const num = Math.floor((value / population) * per);
+      const num = Math.floor((value / people) * per);
       data.push({ date: item.date, value: num });
     });
     return data;
@@ -194,10 +203,14 @@ export default class ChartBoard extends BaseComponent {
     this.data = data;
     this.createChart(this.state.case);
     const cases = this.state.case;
-    const { period, abs, country } = this.state;
-    if (period) {
+    const { period, abs } = this.state;
+    if (period && abs) {
+      const daily = this.toDeily(cases);
+      const dailyPer100k = this.perTausend(daily);
+      this.data = dailyPer100k;
+    } else if (period) {
       this.data = this.toDeily(cases);
-    } else if (abs && country === 'global') {
+    } else if (abs) {
       const dataPer100k = this.perTausend(this.createData(cases));
       this.data = dataPer100k;
     }
