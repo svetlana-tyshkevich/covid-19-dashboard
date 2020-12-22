@@ -72,13 +72,13 @@
 .list__item-cases {
   margin: 0 0 0 auto;
 
-  &.cases {
+  &.cases, &.casesPer100k, &.todayCases {
     color: $blue;
   }
-  &.recovered {
+  &.recovered, &.recoveredPer100k, &.todayRecovered {
     color: $green;
   }
-  &.deaths {
+  &.deaths, &.deathsPer100k, &.todayDeaths {
     color: $red;
   }
 }

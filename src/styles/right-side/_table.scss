@@ -1,0 +1,12 @@
+.table {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  flex-basis: 50%;
+
+  margin-bottom: 10px;
+
+  background: $second-black;
+  border: 1px solid $white-transp;
+}

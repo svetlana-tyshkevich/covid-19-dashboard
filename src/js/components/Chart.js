@@ -16,14 +16,13 @@ export default class ChartBoard extends BaseComponent {
     this.isWaiting = false;
 
     this.model.listen(() => {
+      const data = this.model.getWorldStatus();
       if (!this.isStarted) {
-        const data = this.model.getWorldStatus();
         this.update(data);
       }
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
-        const cases = state.case;
 
         if (stateCountryCode !== this.state.country) {
           if (!this.isWaiting) {
@@ -32,12 +31,12 @@ export default class ChartBoard extends BaseComponent {
           } else {
             this.isWaiting = false;
             const { timeline } = this.model.getCountryDaily();
-            this.update(timeline);
             this.setState(state);
+            this.update(timeline);
           }
-        } else if (cases !== this.state.case) {
-          this.tabListener(cases);
+        } else {
           this.setState(state);
+          this.update(data);
         }
       }
     });
@@ -50,7 +49,8 @@ export default class ChartBoard extends BaseComponent {
     data.forEach((el, ind) => {
       const val = el.value;
       const prevValue = simularData[ind - 1]?.value || 0;
-      const num = val - prevValue;
+      let num = val - prevValue;
+      if (num < 0) { num = Math.abs(num) / 10; }
       result.push({ date: el.date, value: num });
     });
     return result;
@@ -138,7 +138,6 @@ export default class ChartBoard extends BaseComponent {
 
   handleEvent = (event) => {
     const { target } = event;
-    // const [confirmed, recovered, deaths] = this.tabItems;
     const positonActive = _.findIndex(this.tabItems, (el) => el.closest('.active')) || 0;
     const prev = (positonActive > 0)
       ? this.tabItems[positonActive - 1]
@@ -161,22 +160,12 @@ export default class ChartBoard extends BaseComponent {
     let element;
     if (typeof target === 'string') {
       element = this.tabItems.find((el) => el.dataset.tab === target);
-      if (target === 'cases') {
-        this.updateChart(target);
-      } else if (target === 'recovered') {
-        this.updateChart(target);
-      } else if (target === 'deaths') {
-        this.updateChart(target);
-      }
     } else if (!target.closest('.active')) {
       element = target;
-      if (element?.dataset?.sort === 'daily') {
-        this.data = this.toDeily(element.dataset.tab);
-      }
-      this.updateChart(element.dataset.tab);
-      this.model.setState('case', element.dataset.tab);
     }
-
+    this.updateChart(element.dataset.tab);
+    this.model.setState('case', element.dataset.tab);
+    // sum population 7 827 000 000
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
@@ -190,8 +179,12 @@ export default class ChartBoard extends BaseComponent {
     }
     this.data = data;
     this.createChart(this.state.case);
-
-    this.toDeily('cases');
+    const cases = this.state.case;
+    const { period } = this.state;
+    if (period) {
+      this.data = this.toDeily(cases);
+    }
+    this.tabListener(cases);
   }
 
   init = () => {
@@ -200,15 +193,6 @@ export default class ChartBoard extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
-      ['Daily confirmed', [['tab', 'cases'], ['sort', 'daily']]],
-      // ['Daily recovered', [['tab', 'recovered'], ['type', 'daily']]],
-      // ['Daily deaths', [['tab', 'deaths'], ['type', 'daily']]],
-      // ['Per 100k population confirmed', [['tab', 'cases']]],
-      // ['Per 100k population recovered', [['tab', 'recovered']]],
-      // ['Per 100k population deaths', [['tab', 'deaths']]],
-      // ['Daily per 100k confirmed', [['tab', 'cases']]],
-      // ['Daily per 100k recovered', [['tab', 'recovered']]],
-      // ['Daily per 100k deaths', [['tab', 'deaths']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;
