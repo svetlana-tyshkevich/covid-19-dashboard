@@ -16,17 +16,17 @@ export default class WorldMap extends BaseComponent {
     this.isStarted = false;
     this.model.listen(() => {
       const countriesData = this.model.getSummaryData();
-      if (countriesData?.length > 0) {
-        this.update(countriesData);
+      if (!this.isStarted) {
+        if (countriesData?.length > 0) {
+          this.update(countriesData);
+        }
       }
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const cases = state.case;
 
-        if (cases !== this.state.case) {
-          this.tabListener(cases);
-          this.setState(state);
-        }
+        this.setState(state);
+        this.tabListener(cases);
       }
     });
   }
@@ -73,34 +73,66 @@ export default class WorldMap extends BaseComponent {
     });
 
     this.map.on('mousemove', 'country-boundaries', (e) => {
-      let popupInner;
-      if (this.state.case === 'cases') {
-        popupInner = `<div><strong>${
-          e.features[0].properties.name_en
-        }</strong></div>
-          <div>${
-            this.model.getDataByCountry(e.features[0].properties.iso_3166_1)
-              .cases || 0
+      let resultString;
+      const feature = this.model.getDataByCountry(
+        e.features[0].properties.iso_3166_1,
+      );
+      if (!this.state.period && !this.state.abs) {
+        if (this.state.case === 'cases') {
+          resultString = `<div>${feature.cases || 0} cases</div>`;
+        }
+        if (this.state.case === 'deaths') {
+          resultString = `<div>${feature.deaths || 0} deaths</div>`;
+        }
+        if (this.state.case === 'recovered') {
+          resultString = `<div>${feature.recovered || 0} recovered</div>`;
+        }
+      } else if (this.state.period && !this.state.abs) {
+        if (this.state.case === 'cases') {
+          resultString = `<div>${feature.todayCases || 0} cases</div>`;
+        }
+        if (this.state.case === 'deaths') {
+          resultString = `<div>${feature.todayDeaths || 0} deaths</div>`;
+        }
+        if (this.state.case === 'recovered') {
+          resultString = `<div>${feature.todayRecovered || 0} recovered</div>`;
+        }
+      } else if (!this.state.period && this.state.abs) {
+        if (this.state.case === 'cases') {
+          resultString = `<div>${
+            Math.trunc(feature.casesPerOneMillion / 10) || 0
           } cases</div>`;
-      }
-      if (this.state.case === 'deaths') {
-        popupInner = `<div><strong>${
-          e.features[0].properties.name_en
-        }</strong></div>
-          <div>${
-            this.model.getDataByCountry(e.features[0].properties.iso_3166_1)
-              .deaths || 0
+        }
+        if (this.state.case === 'deaths') {
+          resultString = `<div>${
+            Math.trunc(feature.deathsPerOneMillion / 10) || 0
           } deaths</div>`;
-      }
-      if (this.state.case === 'recovered') {
-        popupInner = `<div><strong>${
-          e.features[0].properties.name_en
-        }</strong></div>
-          <div>${
-            this.model.getDataByCountry(e.features[0].properties.iso_3166_1)
-              .recovered || 0
+        }
+        if (this.state.case === 'recovered') {
+          resultString = `<div>${
+            Math.trunc(feature.recoveredPerOneMillion / 10) || 0
           } recovered</div>`;
+        }
+      } else if (this.state.period && this.state.abs) {
+        if (this.state.case === 'cases') {
+          resultString = `<div>${
+            Math.trunc((feature.todayCases / feature.population) * 10000) || 0
+          } cases</div>`;
+        }
+        if (this.state.case === 'deaths') {
+          resultString = `<div>${
+            Math.trunc((feature.todayDeaths / feature.population) * 10000) || 0
+          } deaths</div>`;
+        }
+        if (this.state.case === 'recovered') {
+          resultString = `<div>${
+            Math.trunc((feature.todayRecovered / feature.population) * 10000) || 0
+          } recovered</div>`;
+        }
       }
+
+      const popupInner = `<div><strong>${e.features[0].properties.name_en}</strong></div>
+          ${resultString}`;
 
       popup.setLngLat(e.lngLat).setHTML(popupInner).addTo(this.map);
       if (!e.features.length) {
@@ -265,6 +297,11 @@ export default class WorldMap extends BaseComponent {
     }
   };
 
+  createString = (start, end) => {
+    const capitalize = `${end.charAt(0).toUpperCase()}${end.slice(1)}`;
+    return start + capitalize;
+  };
+
   handleEvent = (event) => {
     const { target } = event;
 
@@ -281,28 +318,27 @@ export default class WorldMap extends BaseComponent {
     let element;
     if (typeof target === 'string') {
       element = this.tabItems.find((el) => el.dataset.tab === target);
-      if (target === 'cases') {
-        this.createCircleLayer(target);
-        this.createLegend(target);
-      } else if (target === 'recovered') {
-        this.createCircleLayer(target);
-        this.createLegend(target);
-      } else if (target === 'deaths') {
-        this.createCircleLayer(target);
-        this.createLegend(target);
-      }
     } else if (!target.closest('.active')) {
       element = target;
-      if (element?.dataset?.sort === 'daily') {
-        const cases = this.createString('today', target.dataset.tab);
-        this.createCircleLayer(cases);
-        this.createLegend(cases);
-      } else {
-        this.createCircleLayer(target.dataset.tab);
-        this.createLegend(target.dataset.tab);
-      }
-      this.model.setState('case', target.dataset.tab);
     }
+    let cases;
+    if (this.state.abs) {
+      cases = `${element.dataset.tab}Per100k`;
+      this.createCircleLayer(cases);
+      this.createLegend(cases);
+    } else if (this.state.period) {
+      cases = this.createString('today', element.dataset.tab);
+      this.createCircleLayer(cases);
+      this.createLegend(cases);
+    } else if (this.state.period && this.state.abs) {
+      // Тут для обоих показателей сразу
+      this.createCircleLayer(element.dataset.tab);
+      this.createLegend(element.dataset.tab);
+    } else {
+      this.createCircleLayer(element.dataset.tab);
+      this.createLegend(element.dataset.tab);
+    }
+    this.model.setState('case', element.dataset.tab);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
