@@ -61,7 +61,7 @@ export default class BaseComponent {
   loaded = () => {
     setTimeout(() => {
       this.loaderWrap.innerHTML = '';
-      this.loaderWrap.parentNode.removeChild(this.loaderWrap);
+      this.loaderWrap?.parentNode?.removeChild(this.loaderWrap);
     }, 0);
   }
 
