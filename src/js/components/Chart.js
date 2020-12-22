@@ -24,7 +24,7 @@ export default class ChartBoard extends BaseComponent {
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
 
-        if (stateCountryCode !== this.state.country) {
+        if (stateCountryCode !== 'global') {
           if (!this.isWaiting) {
             this.isWaiting = true;
             this.model.requestCountryStatus(stateCountryCode);
@@ -43,8 +43,8 @@ export default class ChartBoard extends BaseComponent {
   }
 
   toDeily = (cases) => {
-    const data = [...this.createDate(cases)];
-    const simularData = [...this.createDate(cases)];
+    const data = [...this.createData(cases)];
+    const simularData = [...this.createData(cases)];
     const result = [];
     data.forEach((el, ind) => {
       const val = el.value;
@@ -56,17 +56,16 @@ export default class ChartBoard extends BaseComponent {
     return result;
   }
 
-  createDate = (cases) => {
+  createData = (cases) => {
     const category = this.data[cases];
     const arrayFromCases = Object.keys(category);
     const data = arrayFromCases.reduce((acc, el) => {
       const strToDate = el.split('/');
       const [mounth, day, year] = strToDate;
-      const dateItem = new Date(+`20${year}`, mounth, day);
+      const dateItem = new Date(+`20${year}`, (mounth - 1), day);
       acc.push({ date: dateItem, value: category[el] });
       return acc;
     }, []);
-
     return data;
   }
 
@@ -86,45 +85,47 @@ export default class ChartBoard extends BaseComponent {
   }
 
   createChart = (cases) => {
-    this.isChartOn = true;
-    am4core.useTheme(amThem);
-    am4core.useTheme(amAnimation);
+    setTimeout(() => {
+      this.isChartOn = true;
+      am4core.useTheme(amThem);
+      am4core.useTheme(amAnimation);
 
-    this.chart = am4core.create(this.chartBox, am4charts.XYChart);
-    this.chart.paddingRight = 20;
+      this.chart = am4core.create(this.chartBox, am4charts.XYChart);
+      this.chart.paddingRight = 20;
 
-    const color = this.setColor(cases);
-    this.chart.colors.list = [
-      am4core.color(color),
-    ];
+      const color = this.setColor(cases);
+      this.chart.colors.list = [
+        am4core.color(color),
+      ];
 
-    let data;
-    if (!Array.isArray(this.data)) {
-      data = this.createDate(cases);
-    } else {
-      data = this.data;
-    }
-    this.chart.data = data;
+      let data;
+      if (!Array.isArray(this.data)) {
+        data = this.createData(cases);
+      } else {
+        data = this.data;
+      }
+      this.chart.data = data;
 
-    const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
-    this.chart.yAxes.push(new am4charts.ValueAxis());
-    const series = this.chart.series.push(new am4charts.LineSeries());
-    this.chart.cursor = new am4charts.XYCursor();
+      const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
+      this.chart.yAxes.push(new am4charts.ValueAxis());
+      const series = this.chart.series.push(new am4charts.LineSeries());
+      this.chart.cursor = new am4charts.XYCursor();
 
-    // Settings
-    dateAxis.renderer.grid.template.location = 0;
-    dateAxis.minZoomCount = 5;
-    dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
-    series.dataFields.dateX = 'date';
-    series.dataFields.valueY = 'value';
-    series.tooltipText = '{valueY}';
-    series.tooltip.pointerOrientation = 'vertical';
-    series.tooltip.background.fillOpacity = 0.5;
-    series.strokeWidth = 3;
-    series.fillOpacity = 0.5;
+      // Settings
+      dateAxis.renderer.grid.template.location = 0;
+      dateAxis.minZoomCount = 5;
+      dateAxis.groupData = true;
+      dateAxis.groupCount = 500;
+      series.dataFields.dateX = 'date';
+      series.dataFields.valueY = 'value';
+      series.tooltipText = '{valueY}';
+      series.tooltip.pointerOrientation = 'vertical';
+      series.tooltip.background.fillOpacity = 0.5;
+      series.strokeWidth = 3;
+      series.fillOpacity = 0.5;
 
-    this.chart.cursor.xAxis = dateAxis;
+      this.chart.cursor.xAxis = dateAxis;
+    }, 0);
   }
 
   updateChart = (cases) => {
@@ -163,13 +164,26 @@ export default class ChartBoard extends BaseComponent {
     } else if (!target.closest('.active')) {
       element = target;
     }
-    this.updateChart(element.dataset.tab);
-    this.model.setState('case', element.dataset.tab);
-    // sum population 7 827 000 000
+    setTimeout(() => {
+      this.updateChart(element.dataset.tab);
+      this.model.setState('case', element.dataset.tab);
+    }, 0);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });
     element.classList.add('active');
+  }
+
+  perTausend = (array) => {
+    const data = [];
+    const population = 7800000000;
+    const per = 100000;
+    array.forEach((item) => {
+      const { value } = item;
+      const num = Math.floor((value / population) * per);
+      data.push({ date: item.date, value: num });
+    });
+    return data;
   }
 
   update = (data) => {
@@ -180,9 +194,12 @@ export default class ChartBoard extends BaseComponent {
     this.data = data;
     this.createChart(this.state.case);
     const cases = this.state.case;
-    const { period } = this.state;
+    const { period, abs, country } = this.state;
     if (period) {
       this.data = this.toDeily(cases);
+    } else if (abs && country === 'global') {
+      const dataPer100k = this.perTausend(this.createData(cases));
+      this.data = dataPer100k;
     }
     this.tabListener(cases);
   }

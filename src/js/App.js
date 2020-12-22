@@ -16,10 +16,16 @@ export default class App {
 
     this.list = new List('list');
     this.map = new WorldMap('map');
-
     this.chart = new ChartBoard('chart');
 
-    this.chart = new Table('table');
+    this.table = new Table('table');
+
+    this.model.listen(() => {
+      const countries = this.model.getSummaryData();
+      if (countries && countries.length > 0) {
+        this.map.update(countries);
+      }
+    });
 
     this.model.requestSummaryData();
     this.model.requestWorldStatus();
