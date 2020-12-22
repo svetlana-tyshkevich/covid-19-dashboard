@@ -85,45 +85,47 @@ export default class ChartBoard extends BaseComponent {
   }
 
   createChart = (cases) => {
-    this.isChartOn = true;
-    am4core.useTheme(amThem);
-    am4core.useTheme(amAnimation);
+    setTimeout(() => {
+      this.isChartOn = true;
+      am4core.useTheme(amThem);
+      am4core.useTheme(amAnimation);
 
-    this.chart = am4core.create(this.chartBox, am4charts.XYChart);
-    this.chart.paddingRight = 20;
+      this.chart = am4core.create(this.chartBox, am4charts.XYChart);
+      this.chart.paddingRight = 20;
 
-    const color = this.setColor(cases);
-    this.chart.colors.list = [
-      am4core.color(color),
-    ];
+      const color = this.setColor(cases);
+      this.chart.colors.list = [
+        am4core.color(color),
+      ];
 
-    let data;
-    if (!Array.isArray(this.data)) {
-      data = this.createData(cases);
-    } else {
-      data = this.data;
-    }
-    this.chart.data = data;
+      let data;
+      if (!Array.isArray(this.data)) {
+        data = this.createData(cases);
+      } else {
+        data = this.data;
+      }
+      this.chart.data = data;
 
-    const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
-    this.chart.yAxes.push(new am4charts.ValueAxis());
-    const series = this.chart.series.push(new am4charts.LineSeries());
-    this.chart.cursor = new am4charts.XYCursor();
+      const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
+      this.chart.yAxes.push(new am4charts.ValueAxis());
+      const series = this.chart.series.push(new am4charts.LineSeries());
+      this.chart.cursor = new am4charts.XYCursor();
 
-    // Settings
-    dateAxis.renderer.grid.template.location = 0;
-    dateAxis.minZoomCount = 5;
-    dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
-    series.dataFields.dateX = 'date';
-    series.dataFields.valueY = 'value';
-    series.tooltipText = '{valueY}';
-    series.tooltip.pointerOrientation = 'vertical';
-    series.tooltip.background.fillOpacity = 0.5;
-    series.strokeWidth = 3;
-    series.fillOpacity = 0.5;
+      // Settings
+      dateAxis.renderer.grid.template.location = 0;
+      dateAxis.minZoomCount = 5;
+      dateAxis.groupData = true;
+      dateAxis.groupCount = 500;
+      series.dataFields.dateX = 'date';
+      series.dataFields.valueY = 'value';
+      series.tooltipText = '{valueY}';
+      series.tooltip.pointerOrientation = 'vertical';
+      series.tooltip.background.fillOpacity = 0.5;
+      series.strokeWidth = 3;
+      series.fillOpacity = 0.5;
 
-    this.chart.cursor.xAxis = dateAxis;
+      this.chart.cursor.xAxis = dateAxis;
+    }, 0);
   }
 
   updateChart = (cases) => {
@@ -162,8 +164,10 @@ export default class ChartBoard extends BaseComponent {
     } else if (!target.closest('.active')) {
       element = target;
     }
-    this.updateChart(element.dataset.tab);
-    this.model.setState('case', element.dataset.tab);
+    setTimeout(() => {
+      this.updateChart(element.dataset.tab);
+      this.model.setState('case', element.dataset.tab);
+    }, 0);
     this.tabItems.forEach((el) => {
       el.classList.remove('active');
     });

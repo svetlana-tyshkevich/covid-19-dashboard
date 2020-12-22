@@ -59,36 +59,37 @@ const model = {
           ];
 
           data.forEach((element) => {
-            perMillion.forEach((field, ind) => {
-              const item = element[field];
-              const name = per100k[ind];
-              if (item) {
-                const sum = item / 10;
-                if (!(name in element)) {
+            setTimeout(() => {
+              perMillion.forEach((field, ind) => {
+                const item = element[field];
+                const name = per100k[ind];
+                if (item) {
+                  const sum = item / 10;
+                  if (!(name in element)) {
+                    // eslint-disable-next-line no-param-reassign
+                    element[name] = Math.trunc(sum);
+                  }
+                } else {
                   // eslint-disable-next-line no-param-reassign
-                  element[name] = Math.trunc(sum);
+                  element[name] = 0;
                 }
-              } else {
-                // eslint-disable-next-line no-param-reassign
-                element[name] = 0;
-              }
-            });
-            perDay.forEach((field, ind) => {
-              const item = element[field];
-              const name = perDay100k[ind];
-              if (item) {
-                const sum = (item / element.population) * per;
-                if (!(name in element)) {
+              });
+              perDay.forEach((field, ind) => {
+                const item = element[field];
+                const name = perDay100k[ind];
+                if (item) {
+                  const sum = (item / element.population) * per;
+                  if (!(name in element)) {
+                    // eslint-disable-next-line no-param-reassign
+                    element[name] = Math.trunc(sum);
+                  }
+                } else {
                   // eslint-disable-next-line no-param-reassign
-                  element[name] = Math.trunc(sum);
+                  element[name] = 0;
                 }
-              } else {
-                // eslint-disable-next-line no-param-reassign
-                element[name] = 0;
-              }
-            });
+              });
+            }, 0);
           });
-          console.log('data is: ', data);
           model.setData(data, 'summary');
         });
     }
@@ -113,12 +114,16 @@ const model = {
       const difference = formDate > today ? formDate - today : today - formDate;
       const diffDays = Math.floor(difference / (1000 * 3600 * 24));
       const url = `https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=${diffDays}`;
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          const name = 'allStatus';
-          model.setData(data, name);
-        });
+      try {
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            const name = 'allStatus';
+            model.setData(data, name);
+          });
+      } catch (erroe) {
+        throw new Error('Could not get data :(');
+      }
     }
   },
   requestCountryStatus(countryId) {
