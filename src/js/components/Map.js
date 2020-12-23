@@ -13,7 +13,6 @@ export default class WorldMap extends BaseComponent {
     });
     this.wrap.append(this.mapBox);
     this.isStarted = false;
-    this.isLoading = false;
     this.model.listen(() => {
       const countriesData = this.model.getSummaryData();
       if (!this.isStarted) {
@@ -155,13 +154,11 @@ export default class WorldMap extends BaseComponent {
 
   flyToCountry = (target) => {
     const country = this.data.find((item) => item.countryInfo.iso2 === target);
-    if (this.state.country !== 'global') {
-      this.map.flyTo({
-        center: [country.countryInfo.long, country.countryInfo.lat],
-        essential: true,
-        zoom: 3,
-      });
-    }
+    this.map.flyTo({
+      center: [country.countryInfo.long, country.countryInfo.lat],
+      essential: true,
+      zoom: 3,
+    });
   };
 
   createCircleLayer = (target) => {
@@ -263,7 +260,6 @@ export default class WorldMap extends BaseComponent {
         'circle-stroke-color': '#159',
       },
     });
-    this.isLoading = false;
   };
 
   createLegend = (indicator) => {
@@ -434,7 +430,6 @@ export default class WorldMap extends BaseComponent {
       item.appendChild(value);
       document.getElementById('legend').appendChild(item);
     }
-    this.isLoading = false;
   };
 
   createString = (start, end) => {
@@ -463,37 +458,34 @@ export default class WorldMap extends BaseComponent {
   };
 
   tabListener = (target) => {
-    if (!this.isLoading) {
-      this.isLoading = true;
-      let element;
-      if (typeof target === 'string') {
-        element = this.tabItems.find((el) => el.dataset.tab === target);
-      } else {
-        element = target;
-      }
-      let newCases;
-      if (this.state.abs && this.state.period) {
-        newCases = `${this.createString('today', this.state.case)}Per100k`;
-        this.createCircleLayer(newCases);
-        this.createLegend(newCases);
-      } else if (this.state.abs) {
-        newCases = `${this.state.case}Per100k`;
-        this.createCircleLayer(newCases);
-        this.createLegend(newCases);
-      } else if (this.state.period) {
-        newCases = this.createString('today', this.state.case);
-        this.createCircleLayer(newCases);
-        this.createLegend(newCases);
-      } else {
-        this.createCircleLayer(this.state.case);
-        this.createLegend(this.state.case);
-      }
-      this.model.setState('case', element.dataset.tab);
-      this.tabItems.forEach((el) => {
-        el.classList.remove('active');
-      });
-      element.classList.add('active');
+    let element;
+    if (typeof target === 'string') {
+      element = this.tabItems.find((el) => el.dataset.tab === target);
+    } else if (!target.closest('.active')) {
+      element = target;
     }
+    let newCases;
+    if (this.state.abs && this.state.period) {
+      newCases = `${this.createString('today', this.state.case)}Per100k`;
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
+    } else if (this.state.abs) {
+      newCases = `${this.state.case}Per100k`;
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
+    } else if (this.state.period) {
+      newCases = this.createString('today', this.state.case);
+      this.createCircleLayer(newCases);
+      this.createLegend(newCases);
+    } else {
+      this.createCircleLayer(this.state.case);
+      this.createLegend(this.state.case);
+    }
+    this.model.setState('case', element.dataset.tab);
+    this.tabItems.forEach((el) => {
+      el.classList.remove('active');
+    });
+    element.classList.add('active');
   };
 
   update = (data) => {
