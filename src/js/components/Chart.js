@@ -159,6 +159,10 @@ export default class ChartBoard extends BaseComponent {
       this.tabListener(prev);
     } else if (target.dataset.arrow === 'right') {
       this.tabListener(next);
+    } else if (target?.dataset?.reset) {
+      setTimeout(() => {
+        this.model.setState('country', 'global');
+      }, 0);
     }
   }
 
@@ -231,6 +235,7 @@ export default class ChartBoard extends BaseComponent {
       ['Confirmed', [['tab', 'cases']]],
       ['Recovered', [['tab', 'recovered']]],
       ['Deaths', [['tab', 'deaths']]],
+      ['Global data', [['reset', 'global']]],
     ];
     tabs.forEach((el) => {
       const [name, data] = el;

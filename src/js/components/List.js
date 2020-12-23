@@ -143,6 +143,11 @@ export default class List extends BaseComponent {
         });
         element.classList.add('active');
       }, 0);
+    } else {
+      const listItems = [...this.list.children];
+      listItems.forEach((el) => {
+        el.classList.remove('active');
+      });
     }
   }
 
