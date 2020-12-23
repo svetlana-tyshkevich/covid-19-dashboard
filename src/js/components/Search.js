@@ -15,6 +15,17 @@ export default class Search extends BaseComponent {
       parent: this.wrap,
     });
 
+    const icon = create({
+      tagName: 'i',
+      classNames: 'material-icons',
+      children: 'keyboard',
+    });
+
+    const container = create({
+      tagName: 'div',
+      classNames: 'input__wrap',
+    });
+
     this.input = create({
       tagName: 'input',
       classNames: 'search__input',
@@ -23,8 +34,17 @@ export default class Search extends BaseComponent {
         ['placeholder', 'Search country...'],
         ['id', 'search'],
       ],
-      parent: this.wrap,
+      parent: container,
     });
+
+    this.keyboardBtn = create({
+      tagName: 'button',
+      classNames: 'switcher',
+      children: icon,
+      parent: container,
+    });
+
+    this.wrap.append(container);
 
     this.model.listen(() => {
       setTimeout(() => {
@@ -35,6 +55,7 @@ export default class Search extends BaseComponent {
       }, 200);
     });
     this.isStarted = false;
+    this.isKeybordOn = false;
   }
 
   update = () => {
@@ -44,8 +65,21 @@ export default class Search extends BaseComponent {
     }, 0);
   }
 
-  handleEvent = () => {
-
+  handleEvent = (event) => {
+    const { target } = event;
+    if (target.closest('.switcher')) {
+      if (!this.isKeybordOn) {
+        this.isKeybordOn = true;
+        this.check = setInterval(() => {
+          if (this.input.val !== '') {
+            this.inputEvent();
+          }
+        }, 1000);
+      } else {
+        this.isKeybordOn = false;
+        clearInterval(this.check);
+      }
+    }
   }
 
   inputEvent = () => {
@@ -76,6 +110,7 @@ export default class Search extends BaseComponent {
     if (!this.isStarted) {
       this.isStarted = true;
       this.input.addEventListener('input', this.inputEvent);
+      this.wrap.addEventListener('click', this.handleEvent);
       this.loaded();
     }
   }
