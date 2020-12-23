@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 import mapboxgl from 'mapbox-gl';
 import * as _ from 'lodash';
-// import model from '../model/model';
 import create from '../utils/create';
 import BaseComponent from './BaseComponent';
 
@@ -61,6 +59,8 @@ export default class WorldMap extends BaseComponent {
     this.map.getCanvas().style.cursor = 'default';
 
     this.map.on('load', () => {
+      this.map.resize();
+
       const geoJson = {
         type: 'FeatureCollection',
         features: this.data.map((country = {}) => {
@@ -164,234 +164,89 @@ export default class WorldMap extends BaseComponent {
     let range;
     if (target === 'deaths') {
       range = [
-        'step',
-        ['get', 'deaths'],
-        '#fee5d9',
-        500,
-        '#fcbba1',
-        1000,
-        '#fc9272',
-        5000,
-        '#fb6a4a',
-        10000,
-        '#ef3b2c',
-        20000,
-        '#cb181d',
-        50000,
-        '#99000d',
+        'step', ['get', 'deaths'], '#fee5d9', 500, '#fcbba1', 1000, '#fc9272', 5000, '#fb6a4a', 10000, '#ef3b2c', 20000, '#cb181d', 50000, '#99000d',
       ];
     }
     if (target === 'cases') {
       range = [
-        'step',
-        ['get', 'cases'],
-        '#eff3ff',
-        10000,
-        '#c6dbef',
-        50000,
-        '#9ecae1',
-        100000,
-        '#6baed6',
-        200000,
-        '#4292c6',
-        500000,
-        '#2171b5',
-        1000000,
-        '#084594',
+        'step', ['get', 'cases'], '#eff3ff', 10000, '#c6dbef', 50000, '#9ecae1', 100000, '#6baed6', 200000, '#4292c6', 500000, '#2171b5', 1000000, '#084594',
       ];
     }
     if (target === 'recovered') {
       range = [
         'step',
         ['get', 'recovered'],
-        '#edf8e9',
-        5000,
-        '#c7e9c0',
-        10000,
-        '#a1d99b',
-        50000,
-        '#74c476',
-        100000,
-        '#41ab5d',
-        200000,
-        '#238b45',
-        500000,
-        '#005a32',
+        '#edf8e9', 5000, '#c7e9c0', 10000, '#a1d99b', 50000, '#74c476', 100000, '#41ab5d', 200000, '#238b45', 500000, '#005a32',
       ];
     }
     if (target === 'todayDeaths') {
       range = [
         'step',
         ['get', 'todayDeaths'],
-        '#fee5d9',
-        100,
-        '#fcbba1',
-        300,
-        '#fc9272',
-        500,
-        '#fb6a4a',
-        800,
-        '#ef3b2c',
-        1200,
-        '#cb181d',
-        1500,
-        '#99000d',
+        '#fee5d9', 100, '#fcbba1', 300, '#fc9272', 500, '#fb6a4a', 800, '#ef3b2c', 1200, '#cb181d', 1500, '#99000d',
       ];
     }
     if (target === 'todayCases') {
       range = [
         'step',
         ['get', 'todayCases'],
-        '#eff3ff',
-        200,
-        '#c6dbef',
-        500,
-        '#9ecae1',
-        1000,
-        '#6baed6',
-        5000,
-        '#4292c6',
-        10000,
-        '#2171b5',
-        30000,
-        '#084594',
+        '#eff3ff', 200, '#c6dbef', 500, '#9ecae1', 1000, '#6baed6', 5000, '#4292c6', 10000, '#2171b5', 30000, '#084594',
       ];
     }
     if (target === 'todayRecovered') {
       range = [
         'step',
         ['get', 'todayRecovered'],
-        '#edf8e9',
-        200,
-        '#c7e9c0',
-        500,
-        '#a1d99b',
-        1000,
-        '#74c476',
-        5000,
-        '#41ab5d',
-        10000,
-        '#238b45',
-        30000,
-        '#005a32',
+        '#edf8e9', 200, '#c7e9c0', 500, '#a1d99b', 1000, '#74c476', 5000, '#41ab5d', 10000, '#238b45', 30000, '#005a32',
       ];
     }
     if (target === 'deathsPer100k') {
       range = [
         'step',
         ['get', 'deathsPer100k'],
-        '#fee5d9',
-        5,
-        '#fcbba1',
-        10,
-        '#fc9272',
-        20,
-        '#fb6a4a',
-        50,
-        '#ef3b2c',
-        80,
-        '#cb181d',
-        100,
-        '#99000d',
+        '#fee5d9', 5, '#fcbba1', 10, '#fc9272', 20, '#fb6a4a', 50, '#ef3b2c', 80, '#cb181d', 100, '#99000d',
       ];
     }
     if (target === 'casesPer100k') {
       range = [
         'step',
         ['get', 'casesPer100k'],
-        '#eff3ff',
-        50,
-        '#c6dbef',
-        200,
-        '#9ecae1',
-        500,
-        '#6baed6',
-        1000,
-        '#4292c6',
-        3000,
-        '#2171b5',
-        5000,
-        '#084594',
+        '#eff3ff', 50, '#c6dbef', 200, '#9ecae1', 500, '#6baed6', 1000, '#4292c6', 3000, '#2171b5', 5000, '#084594',
       ];
     }
     if (target === 'recoveredPer100k') {
       range = [
         'step',
         ['get', 'recoveredPer100k'],
-        '#edf8e9',
-        50,
-        '#c7e9c0',
-        200,
-        '#a1d99b',
-        500,
-        '#74c476',
-        1000,
-        '#41ab5d',
-        3000,
-        '#238b45',
-        5000,
-        '#005a32',
+        '#edf8e9', 50, '#c7e9c0', 200, '#a1d99b', 500, '#74c476', 1000, '#41ab5d', 3000, '#238b45', 5000, '#005a32',
       ];
     }
     if (target === 'todayDeathsPer100k') {
       range = [
         'step',
         ['get', 'todayDeathsPer100k'],
-        '#fee5d9',
-        0.1,
-        '#fcbba1',
-        0.3,
-        '#fc9272',
-        0.6,
-        '#fb6a4a',
-        1.0,
-        '#ef3b2c',
-        1.4,
-        '#cb181d',
-        1.8,
-        '#99000d',
+        '#fee5d9', 0.1, '#fcbba1', 0.3, '#fc9272', 0.6, '#fb6a4a', 1.0, '#ef3b2c', 1.4, '#cb181d', 1.8, '#99000d',
       ];
     }
     if (target === 'todayCasesPer100k') {
       range = [
         'step',
         ['get', 'todayCasesPer100k'],
-        '#eff3ff',
-        2,
-        '#c6dbef',
-        5,
-        '#9ecae1',
-        10,
-        '#6baed6',
-        25,
-        '#4292c6',
-        50,
-        '#2171b5',
-        100,
-        '#084594',
+        '#eff3ff', 2, '#c6dbef', 5, '#9ecae1', 10, '#6baed6', 25, '#4292c6', 50, '#2171b5', 100, '#084594',
       ];
     }
     if (target === 'todayRecoveredPer100k') {
       range = [
         'step',
         ['get', 'todayRecoveredPer100k'],
-        '#edf8e9',
-        2,
-        '#c7e9c0',
-        5,
-        '#a1d99b',
-        10,
-        '#74c476',
-        25,
-        '#41ab5d',
-        50,
-        '#238b45',
-        100,
-        '#005a32',
+        '#edf8e9', 2, '#c7e9c0', 5, '#a1d99b', 10, '#74c476', 25, '#41ab5d', 50, '#238b45', 100, '#005a32',
       ];
     }
 
-    this.map.removeLayer('country-circle');
+    if (this.map.getLayer('country-circle')) {
+      this.map.removeLayer('country-circle');
+    }
+
     this.map.addLayer({
       id: 'country-circle',
       type: 'circle',
@@ -586,6 +441,7 @@ export default class WorldMap extends BaseComponent {
 
     if (target === this.resizeButton) {
       this.fold();
+      this.map.resize();
     } else if (target?.dataset?.tab) {
       this.tabListener(target);
     } else if (target?.properties?.iso_3166_1) {
