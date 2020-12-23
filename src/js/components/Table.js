@@ -21,6 +21,27 @@ export default class Table extends BaseComponent {
     });
   }
 
+  createTable = () => {
+    this.table = create({
+      tagName: 'table',
+    });
+    this.table.innerHTML = `<caption id="table-caption">World</caption>
+    <tr>
+      <td id="table-confirmed">Confirmed</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td id="table-recovered">Recovered</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td id="table-deaths">Deaths</td>
+      <td></td>
+    </tr>`;
+
+    this.wrap.append(this.table);
+  }
+
   update = (data) => {
     if (!this.isStarted) {
       this.isStarted = true;
@@ -52,6 +73,7 @@ export default class Table extends BaseComponent {
       dataAttr: [['type', 'checkbox']],
     });
     this.wrap.append(this.periodCheck, this.absCheck);
+    this.createTable();
 
     this.wrap.addEventListener('click', this.handleEvent);
     this.loaded();
