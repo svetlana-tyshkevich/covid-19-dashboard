@@ -42,29 +42,33 @@
 @media (max-width: 1023px) {
   .grid {
     flex-wrap: wrap;
+    min-height: unset;
   }
 
   .middle {
-    order: 1;
+    order: 3;
     max-width: 100%;
+    min-height: calc(100vh - 100px);
     padding: 0;
-    margin-bottom: 10px;
+    margin-top: 10px;
   }
 
   .left__side {
-    order: 2;
+    order: 1;
     max-width: 50%;
+    min-height: calc(100vh - 100px);
   }
 
   .right__side {
-    order: 3;
+    order: 2;
     max-width: 50%;
+    min-height: calc(100vh - 100px);
   }
 }
 
 @media (max-width: 578px) {
   .middle {
-    order: 2;
+    order: 3;
     max-width: 100%;
     padding: 0;
     margin-bottom: 10px;
