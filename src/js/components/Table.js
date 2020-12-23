@@ -1,7 +1,5 @@
 import * as _ from 'lodash';
 
-import create from '../utils/create';
-
 import BaseComponent from './BaseComponent';
 
 export default class Table extends BaseComponent {
@@ -29,10 +27,6 @@ export default class Table extends BaseComponent {
         }
       }
     });
-    this.tableCaption = document.getElementById('table-caption');
-    this.tableConfirmed = document.getElementById('table-confirmed');
-    this.tableRecovered = document.getElementById('table-recovered');
-    this.tableDeaths = document.getElementById('table-deaths');
   }
 
  setTableInfo = (data) => {
@@ -49,9 +43,11 @@ export default class Table extends BaseComponent {
          * 100000
        ).toFixed(2);
      } else if (this.state.abs && !this.state.period) {
-       this.tableConfirmed.textContent = data.casesPerOneMillion / 10;
-       this.tableRecovered.textContent = data.recoveredPerOneMillion / 10;
-       this.tableDeaths.textContent = data.deathsPerOneMillion / 10;
+       this.tableConfirmed.textContent = Math.trunc(data.casesPerOneMillion / 10);
+       this.tableRecovered.textContent = Math.trunc(
+         data.recoveredPerOneMillion / 10,
+       );
+       this.tableDeaths.textContent = Math.trunc(data.deathsPerOneMillion / 10);
      } else if (!this.state.abs && this.state.period) {
        this.tableConfirmed.textContent = data.todayCases;
        this.tableRecovered.textContent = data.todayRecovered;
@@ -104,17 +100,13 @@ export default class Table extends BaseComponent {
   }
 
   init = () => {
-    this.periodCheck = create({
-      tagName: 'input',
-      classNames: 'checkbox period',
-      dataAttr: [['type', 'checkbox']],
-    });
-    this.absCheck = create({
-      tagName: 'input',
-      classNames: 'checkbox abs',
-      dataAttr: [['type', 'checkbox']],
-    });
-    this.wrap.prepend(this.periodCheck, this.absCheck);
+    this.tableCaption = document.getElementById('table-caption');
+    this.tableConfirmed = document.getElementById('table-confirmed');
+    this.tableRecovered = document.getElementById('table-recovered');
+    this.tableDeaths = document.getElementById('table-deaths');
+    this.periodCheck = document.getElementById('checkbox-period');
+    this.absCheck = document.getElementById('checkbox-abs');
+
 
     this.wrap.addEventListener('click', this.handleEvent);
     this.loaded();
