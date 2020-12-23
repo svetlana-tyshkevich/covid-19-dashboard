@@ -107,7 +107,6 @@ export default class Table extends BaseComponent {
     this.periodCheck = document.getElementById('checkbox-period');
     this.absCheck = document.getElementById('checkbox-abs');
 
-
     this.wrap.addEventListener('click', this.handleEvent);
     this.loaded();
   }
