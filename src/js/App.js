@@ -3,7 +3,6 @@ import create from './utils/create';
 import model from './model/model';
 
 import WorldMap from './components/Map';
-
 import List from './components/List';
 import ChartBoard from './components/Chart';
 import Table from './components/Table';
