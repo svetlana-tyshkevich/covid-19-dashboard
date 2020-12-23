@@ -35,13 +35,13 @@ export default class WorldMap extends BaseComponent {
         } else if (cases !== this.state.case) {
           this.setState(state);
           this.tabListener(cases);
-          this.listListener(country);
+          this.mapListener(country);
         }
 
         if (period !== this.state.period || abs !== this.state.abs) {
           this.setState(state);
           this.tabListener(cases);
-          this.listListener(country);
+          this.mapListener(country);
         }
       }
     });
@@ -146,12 +146,10 @@ export default class WorldMap extends BaseComponent {
     });
 
     this.map.on('click', 'country-boundaries', (e) => {
-      const feature = this.model.getDataByCountry(
-        e.features[0].properties.iso_3166_1,
-      );
-      this.flyToCountry(feature);
+      const feature = e.features[0].properties.iso_3166_1;
+      this.mapListener(feature);
     });
-  }
+  };
 
   flyToCountry = (target) => {
     const country = this.data.find((item) => item.countryInfo.iso2 === target);
@@ -590,8 +588,15 @@ export default class WorldMap extends BaseComponent {
       this.fold();
     } else if (target?.dataset?.tab) {
       this.tabListener(target);
-    } else if (target?.dataset?.country) {
-      this.mapFly(target);
+    } else if (target?.properties?.iso_3166_1) {
+      this.mapListener(target);
+    }
+  };
+
+  mapListener = (target) => {
+    if (target !== 'global') {
+      this.flyToCountry(target);
+      this.model.setState('country', target);
     }
   };
 
