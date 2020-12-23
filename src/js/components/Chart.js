@@ -168,7 +168,7 @@ export default class ChartBoard extends BaseComponent {
       let element;
       if (typeof target === 'string') {
         element = this.tabItems.find((el) => el.dataset.tab === target);
-      } else if (this.state.case !== target.dataset.tab) {
+      } else {
         element = target;
       }
       setTimeout(() => {
