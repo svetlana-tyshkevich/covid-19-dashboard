@@ -49,12 +49,13 @@ export default class Search extends BaseComponent {
   }
 
   inputEvent = () => {
-    const value = this.input.value.trim();
+    const value = this.input.value.trim().toLowerCase();
     if (value !== '') {
       this.list.forEach((item) => {
         setTimeout(() => {
           const parent = item.parentNode;
-          if (item.innerText.search(value) === -1) {
+          const text = item.innerText.toLowerCase();
+          if (text.search(value) === -1) {
             parent.classList.add('hidden');
           } else {
             parent.classList.remove('hidden');
