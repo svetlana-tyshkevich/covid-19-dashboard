@@ -1,0 +1,108 @@
+.list {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  flex-basis: 85%;
+
+  padding: 5px;
+  margin-bottom: 10px;
+
+  background: $second-black;
+  border: 1px solid $white-transp;
+}
+
+.list__inner {
+  width: 100%;
+  max-height: calc(100vh - 265px);
+  overflow: auto;
+  padding-right: 3px;
+  padding-bottom: 25px;
+}
+
+.list__inner::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+
+.list__inner::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+  background-color: $white-transp;
+  transition: all .3s linear;
+}
+
+.list__inner:hover::-webkit-scrollbar-thumb {
+  background-color: $white;
+  transition: all .3s linear;
+}
+
+.list__title {
+  text-align: center;
+  padding: 10px 0;
+  font-weight: 500;
+}
+
+.list__item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 5px;
+  border-top: 1px solid rgba(255, 255, 255, .5);
+  cursor: pointer;
+  &:first-child {
+    border-top: 0;
+  }
+  &-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    max-width: 32px;
+    img {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+    }
+  }
+  &.active {
+    background: $light-black;
+  }
+  &.hidden {
+    display: none;
+  }
+}
+
+.list__item-cases {
+  margin: 0 0 0 auto;
+
+  &.cases,
+  &.casesPer100k,
+  &.todayCases,
+  &.todayCasesPer100k {
+    color: $blue;
+  }
+  &.recovered,
+  &.recoveredPer100k,
+  &.todayRecovered,
+  &.todayRecoveredPer100k {
+    color: $green;
+  }
+  &.deaths,
+  &.deathsPer100k,
+  &.todayDeaths,
+  &.todayDeathsPer100k {
+    color: $red;
+  }
+}
+
+@media (max-width: 1023px) {
+  .list__inner {
+    max-height: calc(100vh - 157px);
+  }
+}
+
+@media (max-height: 600px) {
+  .list__inner {
+    max-height: calc(100vh - 20px);
+  }
+}

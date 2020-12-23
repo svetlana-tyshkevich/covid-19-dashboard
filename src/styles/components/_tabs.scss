@@ -1,0 +1,77 @@
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  &.slider {
+    width: calc(100% + 2px);
+    .tab {
+      display: none;
+      width: 100%;
+      cursor: unset;
+      &.active {
+        display: flex;
+      }
+    }
+  }
+}
+
+.tab__arrow {
+  width: 26px;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &.left {
+    top: 0;
+    left: 0;
+  }
+  &.right {
+    top: 0;
+    right: 0;
+  }
+
+  &:hover {
+    background: $white-transp;
+  }
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px 5px;
+  font-size: .88rem;
+
+  background: $second-black;
+  border: 1px solid $white-transp;
+  transition: all .3s linear;
+  cursor: pointer;
+}
+
+[data-tab="cases"] {
+  &.active, &:hover {
+    background: $blue;
+    transition: all .3s linear;
+  }
+}
+[data-tab="recovered"] {
+  &.active, &:hover {
+    background: $green;
+    transition: all .3s linear;
+  }
+}
+[data-tab="deaths"] {
+  &.active, &:hover {
+    background: $red;
+    transition: all .3s linear;
+  }
+}

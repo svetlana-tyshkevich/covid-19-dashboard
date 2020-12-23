@@ -1,0 +1,62 @@
+.map {
+  flex-basis: 94%;
+
+  margin-bottom: 10px;
+
+  background: $second-black;
+  border: 1px solid $white-transp;
+  color: $dark-gray;
+
+  & .tabs {
+    bottom: auto;
+    top: 0;
+    color: $white;
+  }
+}
+
+#mapBox {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.map-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: #fffc;
+  font-size: 16px;
+  background: #5c5c5ccc;
+  margin-right: 20px;
+  font-family: Arial, sans-serif;
+  overflow: auto;
+  border-radius: 3px;
+}
+
+#features {
+  top: 0;
+  height: 110px;
+  margin-top: 20px;
+  width: 250px;
+  padding: 10px;
+  z-index: 10;
+
+}
+
+#legend {
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  line-height: 18px;
+  height: 150px;
+  margin-bottom: 40px;
+  width: 140px;
+  z-index: 5;
+}
+
+.legend-key {
+  display: inline-block;
+  border-radius: 20%;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+}

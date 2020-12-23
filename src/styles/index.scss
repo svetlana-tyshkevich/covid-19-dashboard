@@ -1,0 +1,48 @@
+@import './variables';
+@import './mixins';
+@import './header';
+@import './grid';
+@import './left-side/search';
+@import './left-side/list';
+@import './left-side/last__update';
+@import './middle/map';
+@import './middle/footer';
+@import './right-side/table';
+@import './right-side/chart';
+@import './components/full-screen';
+@import './components/loader';
+@import './components/tabs';
+@import './components/keyboard';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  list-style: none;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  color: $white;
+
+  background: $black;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+// Here some interlayers for dalete later
+.interlayer {
+  height: 100%;
+  @include flex-center;
+}
+
+.component {
+  position: relative;
+}

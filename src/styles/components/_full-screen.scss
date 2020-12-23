@@ -1,0 +1,53 @@
+.component.expanded {
+  position: absolute;
+  width: calc(100vw - 30px);
+  max-width: calc(100vw - 30px);
+  height: calc(100vh - 100px);
+  left: 15px;
+  top: 15px;
+  z-index: 10;
+}
+
+.resize-button {
+  display: none;
+  z-index: 10;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  background-image: url('../images/button-expand.svg');
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: $second-black;
+  border: 1px solid $white-transp;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $dark-gray;
+  }
+
+  &.pressed {
+    background-image: url('../images/button-minimize.svg');
+  }
+}
+
+.component:hover {
+  .resize-button {
+    display: block;
+  }
+}
+
+@media (max-width: 1023px) {
+  .component.expanded {
+    position: fixed;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 10;
+  }
+}
