@@ -18,6 +18,9 @@ export default class ChartBoard extends BaseComponent {
 
     this.model.listen(() => {
       const data = this.model.getWorldStatus();
+      if (!data || data.length === 0) {
+        this.model.requestWorldStatus();
+      }
       if (!this.isStarted) {
         this.update(data);
       }
