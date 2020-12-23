@@ -163,6 +163,7 @@ export default class WorldMap extends BaseComponent {
   };
 
   createCircleLayer = (target) => {
+    console.log(this.map.getSource('countries'));
     let range;
     if (target === 'deaths') {
       range = [
