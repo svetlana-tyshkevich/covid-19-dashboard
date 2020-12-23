@@ -20,15 +20,9 @@ export default class App {
 
     this.table = new Table('table');
 
-    this.model.listen(() => {
-      const countries = this.model.getSummaryData();
-      if (countries && countries.length > 0) {
-        this.map.update(countries);
-      }
-    });
-
     this.model.requestSummaryData();
     this.model.requestWorldStatus();
+    this.model.requestTotalStatus();
   }
 
   append = () => this.element;

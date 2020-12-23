@@ -10,37 +10,45 @@ export default class Table extends BaseComponent {
     this.isStarted = false;
 
     this.model.listen(() => {
+      let data = this.model.getSummaryData();
       if (!this.isStarted) {
-        const data = this.model.getWorldStatus();
         this.update(data);
       }
+
+      // const state = this.model.getState();
+      // if (!_.isEqual(this.state, state)) {
+      //   this.update();
+      // }
+
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
-        this.update();
+        const stateCountryCode = state.country;
+
+        if (stateCountryCode !== 'global') {
+          data = this.model.requestCountryStatus(stateCountryCode);
+          this.setState(state);
+          this.update(data);
+        } else {
+          this.setState(state);
+          this.update(data);
+        }
       }
     });
+    this.tableCaption = document.getElementById('table-caption');
+    this.tableConfirmed = document.getElementById('table-confirmed');
+    this.tableRecovered = document.getElementById('table-recovered');
+    this.tableDeaths = document.getElementById('table-deaths');
   }
 
-  createTable = () => {
-    this.table = create({
-      tagName: 'table',
-    });
-    this.table.innerHTML = `<caption id="table-caption">World</caption>
-    <tr>
-      <td id="table-confirmed">Confirmed</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td id="table-recovered">Recovered</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td id="table-deaths">Deaths</td>
-      <td></td>
-    </tr>`;
-
-    this.wrap.append(this.table);
-  }
+ setTableInfo = () => {
+   // if (this.state.country === 'global') {
+   //   this.tableCaption.textContent = 'World';
+   console.log(this.data);
+   //   this.tableConfirmed.textContent = data.cases[dateItem];
+   //   this.tableRecovered.textContent = data.recovered;
+   //   this.tableDeaths.textContent = data.death;
+   // }
+ }
 
   update = (data) => {
     if (!this.isStarted) {
@@ -48,6 +56,9 @@ export default class Table extends BaseComponent {
       this.init();
     }
     this.data = data;
+    console.log(this.data);
+    this.setTableInfo();
+    console.log(this.model.getTotalStatus());
   }
 
   handleEvent = (event) => {
@@ -72,8 +83,7 @@ export default class Table extends BaseComponent {
       classNames: 'checkbox abs',
       dataAttr: [['type', 'checkbox']],
     });
-    this.wrap.append(this.periodCheck, this.absCheck);
-    this.createTable();
+    this.wrap.prepend(this.periodCheck, this.absCheck);
 
     this.wrap.addEventListener('click', this.handleEvent);
     this.loaded();
