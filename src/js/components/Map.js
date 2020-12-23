@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import mapboxgl from 'mapbox-gl';
 import * as _ from 'lodash';
 // import model from '../model/model';
@@ -21,12 +22,27 @@ export default class WorldMap extends BaseComponent {
           this.update(countriesData);
         }
       }
+
       const state = this.model.getState();
+
       if (!_.isEqual(this.state, state)) {
         const cases = state.case;
+        const { period, abs, country } = state;
 
-        this.setState(state);
-        this.tabListener(cases);
+        if (country !== this.state.country) {
+          this.setState(state);
+          this.flyToCountry(this.state.country);
+        } else if (cases !== this.state.case) {
+          this.setState(state);
+          this.tabListener(cases);
+          this.listListener(country);
+        }
+
+        if (period !== this.state.period || abs !== this.state.abs) {
+          this.setState(state);
+          this.tabListener(cases);
+          this.listListener(country);
+        }
       }
     });
   }
@@ -37,7 +53,7 @@ export default class WorldMap extends BaseComponent {
       container: 'mapBox',
       style: 'mapbox://styles/roachbu/ckir7pnl57ff717qvs68nrrvm',
       center: [53.9015, 27.566],
-      zoom: 2,
+      zoom: 1,
     });
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -96,34 +112,26 @@ export default class WorldMap extends BaseComponent {
         }
       } else if (!this.state.period && this.state.abs) {
         if (this.state.case === 'cases') {
-          resultString = `<div>${
-            Math.trunc(feature.casesPerOneMillion / 10) || 0
-          } cases</div>`;
+          resultString = `<div>${feature.casesPer100k || 0} cases</div>`;
         }
         if (this.state.case === 'deaths') {
-          resultString = `<div>${
-            Math.trunc(feature.deathsPerOneMillion / 10) || 0
-          } deaths</div>`;
+          resultString = `<div>${feature.deathsPer100k || 0} deaths</div>`;
         }
         if (this.state.case === 'recovered') {
           resultString = `<div>${
-            Math.trunc(feature.recoveredPerOneMillion / 10) || 0
+            feature.recoveredPer100k || 0
           } recovered</div>`;
         }
       } else if (this.state.period && this.state.abs) {
         if (this.state.case === 'cases') {
-          resultString = `<div>${
-            Math.trunc((feature.todayCases / feature.population) * 10000) || 0
-          } cases</div>`;
+          resultString = `<div>${feature.todayCasesPer100k || 0} cases</div>`;
         }
         if (this.state.case === 'deaths') {
-          resultString = `<div>${
-            Math.trunc((feature.todayDeaths / feature.population) * 10000) || 0
-          } deaths</div>`;
+          resultString = `<div>${feature.todayDeathsPer100k || 0} deaths</div>`;
         }
         if (this.state.case === 'recovered') {
           resultString = `<div>${
-            Math.trunc((feature.todayRecovered / feature.population) * 10000) || 0
+            feature.todayRecoveredPer100k || 0
           } recovered</div>`;
         }
       }
@@ -135,6 +143,22 @@ export default class WorldMap extends BaseComponent {
       if (!e.features.length) {
         popup.remove();
       }
+    });
+
+    this.map.on('click', 'country-boundaries', (e) => {
+      const feature = this.model.getDataByCountry(
+        e.features[0].properties.iso_3166_1,
+      );
+      this.flyToCountry(feature);
+    });
+  }
+
+  flyToCountry = (target) => {
+    const country = this.data.find((item) => item.countryInfo.iso2 === target);
+    this.map.flyTo({
+      center: [country.countryInfo.long, country.countryInfo.lat],
+      essential: true,
+      zoom: 3,
     });
   };
 
@@ -437,15 +461,7 @@ export default class WorldMap extends BaseComponent {
         ];
       }
       if (indicator === 'todayCasesPer100k') {
-        layers = [
-          '0-2',
-          '2-5',
-          '5-10',
-          '10-25',
-          '25-50',
-          '50-100',
-          '100+',
-        ];
+        layers = ['0-2', '2-5', '5-10', '10-25', '25-50', '50-100', '100+'];
       }
     }
     if (
@@ -497,15 +513,7 @@ export default class WorldMap extends BaseComponent {
         ];
       }
       if (indicator === 'deathsPer100k') {
-        layers = [
-          '0-5',
-          '5-10',
-          '10-20',
-          '20-50',
-          '50-80',
-          '80-100',
-          '100+',
-        ];
+        layers = ['0-5', '5-10', '10-20', '20-50', '50-80', '80-100', '100+'];
       }
     }
     if (
@@ -547,15 +555,7 @@ export default class WorldMap extends BaseComponent {
       ];
     }
     if (indicator === 'recoveredPer100k') {
-      layers = [
-        '0-50',
-        '50-200',
-        '200-500',
-        '500-1K',
-        '1K-3K',
-        '3K-5K',
-        '5K+',
-      ];
+      layers = ['0-50', '50-200', '200-500', '500-1K', '1K-3K', '3K-5K', '5K+'];
     }
     if (indicator === 'todayRecoveredPer100k') {
       layers = ['0-2', '2-5', '5-10', '10-25', '25-50', '50-100', '100+'];
@@ -591,7 +591,7 @@ export default class WorldMap extends BaseComponent {
     } else if (target?.dataset?.tab) {
       this.tabListener(target);
     } else if (target?.dataset?.country) {
-      this.listListener(target);
+      this.mapFly(target);
     }
   };
 
@@ -624,7 +624,7 @@ export default class WorldMap extends BaseComponent {
       el.classList.remove('active');
     });
     element.classList.add('active');
-  }
+  };
 
   update = (data) => {
     this.data = [...data];
