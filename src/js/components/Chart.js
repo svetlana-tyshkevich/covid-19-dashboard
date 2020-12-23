@@ -14,6 +14,7 @@ export default class ChartBoard extends BaseComponent {
     this.isStarted = false;
     this.isChartOn = false;
     this.isWaiting = false;
+    this.isLoading = false;
 
     this.model.listen(() => {
       const data = this.model.getWorldStatus();
@@ -125,6 +126,10 @@ export default class ChartBoard extends BaseComponent {
       series.fillOpacity = 0.5;
 
       this.chart.cursor.xAxis = dateAxis;
+
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 0);
     }, 0);
   }
 
@@ -158,29 +163,41 @@ export default class ChartBoard extends BaseComponent {
   }
 
   tabListener = (target) => {
-    let element;
-    if (typeof target === 'string') {
-      element = this.tabItems.find((el) => el.dataset.tab === target);
-    } else if (!target.closest('.active')) {
-      element = target;
+    if (!this.isLoading) {
+      this.isLoading = true;
+      let element;
+      if (typeof target === 'string') {
+        element = this.tabItems.find((el) => el.dataset.tab === target);
+      } else if (this.state.case !== target.dataset.tab) {
+        element = target;
+      }
+      setTimeout(() => {
+        this.updateChart(element.dataset.tab);
+        this.model.setState('case', element.dataset.tab);
+      }, 0);
+      this.tabItems.forEach((el) => {
+        el.classList.remove('active');
+      });
+      element.classList.add('active');
     }
-    setTimeout(() => {
-      this.updateChart(element.dataset.tab);
-      this.model.setState('case', element.dataset.tab);
-    }, 0);
-    this.tabItems.forEach((el) => {
-      el.classList.remove('active');
-    });
-    element.classList.add('active');
   }
 
   perTausend = (array) => {
+    const { country } = this.state;
+    let people = 0;
+    if (country === 'global') {
+      people = 7800000000;
+    } else {
+      const allData = this.model.getSummaryData();
+      const countryFind = allData.find((el) => el.countryInfo.iso2 === country);
+      const { population } = countryFind;
+      people = population;
+    }
     const data = [];
-    const population = 7800000000;
     const per = 100000;
     array.forEach((item) => {
       const { value } = item;
-      const num = Math.floor((value / population) * per);
+      const num = Math.floor((value / people) * per);
       data.push({ date: item.date, value: num });
     });
     return data;
@@ -194,10 +211,14 @@ export default class ChartBoard extends BaseComponent {
     this.data = data;
     this.createChart(this.state.case);
     const cases = this.state.case;
-    const { period, abs, country } = this.state;
-    if (period) {
+    const { period, abs } = this.state;
+    if (period && abs) {
+      const daily = this.toDeily(cases);
+      const dailyPer100k = this.perTausend(daily);
+      this.data = dailyPer100k;
+    } else if (period) {
       this.data = this.toDeily(cases);
-    } else if (abs && country === 'global') {
+    } else if (abs) {
       const dataPer100k = this.perTausend(this.createData(cases));
       this.data = dataPer100k;
     }

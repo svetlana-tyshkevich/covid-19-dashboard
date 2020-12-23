@@ -20,6 +20,9 @@ export default class App {
 
     this.table = new Table('table');
 
+    this.chart = new Table('table');
+
+
     this.model.listen(() => {
       const countries = this.model.getSummaryData();
       if (countries && countries.length > 0) {

@@ -80,6 +80,7 @@ export default class WorldMap extends BaseComponent {
       };
 
       this.map.addSource('countries', {
+
         type: 'geojson',
         data: geoJson,
       });
