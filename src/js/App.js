@@ -22,19 +22,13 @@ export default class App {
     this.table = new Table('table');
     this.search = new Search('search');
 
-    this.model.listen(() => {
-      const countries = this.model.getSummaryData();
-      if (countries && countries.length > 0) {
-        this.map.update(countries);
-      }
-    });
-
     (function upToDate() {
       const element = document.querySelector('.last__update');
       const date = new Date().toLocaleDateString('US-us');
       element.innerHTML = `<h3>Last updated: ${date}</h3>`;
     }());
 
+    this.model.requestTotalStatus();
     this.model.requestSummaryData();
     this.model.requestWorldStatus();
 

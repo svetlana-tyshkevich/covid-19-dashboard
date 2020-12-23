@@ -51,7 +51,7 @@ export default class WorldMap extends BaseComponent {
       container: 'mapBox',
       style: 'mapbox://styles/roachbu/ckir7pnl57ff717qvs68nrrvm',
       center: [53.9015, 27.566],
-      zoom: 1,
+      zoom: 0,
     });
     const popup = new mapboxgl.Popup({
       closeButton: false,
@@ -162,6 +162,7 @@ export default class WorldMap extends BaseComponent {
   };
 
   createCircleLayer = (target) => {
+    console.log(this.map.getSource('countries'));
     let range;
     if (target === 'deaths') {
       range = [
@@ -454,6 +455,8 @@ export default class WorldMap extends BaseComponent {
     if (target !== 'global') {
       this.flyToCountry(target);
       this.model.setState('country', target);
+    } else {
+      this.map.zoomTo(0, { duration: 2000 });
     }
   };
 

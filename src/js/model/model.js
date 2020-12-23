@@ -42,16 +42,8 @@ const model = {
             'recoveredPerOneMillion',
             'deathsPerOneMillion',
           ];
-          const per100k = [
-            'casesPer100k',
-            'recoveredPer100k',
-            'deathsPer100k',
-          ];
-          const perDay = [
-            'todayCases',
-            'todayRecovered',
-            'todayDeaths',
-          ];
+          const per100k = ['casesPer100k', 'recoveredPer100k', 'deathsPer100k'];
+          const perDay = ['todayCases', 'todayRecovered', 'todayDeaths'];
           const perDay100k = [
             'todayCasesPer100k',
             'todayRecoveredPer100k',
@@ -81,7 +73,7 @@ const model = {
                   const sum = (item / element.population) * per;
                   if (!(name in element)) {
                     // eslint-disable-next-line no-param-reassign
-                    element[name] = sum.toFixed(2);
+                    element[name] = +sum.toFixed(2);
                   }
                 } else {
                   // eslint-disable-next-line no-param-reassign
@@ -108,6 +100,18 @@ const model = {
         model.setData(data, name);
       });
   },
+  requestTotalStatus() {
+    const url = 'https://disease.sh/v3/covid-19/all';
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message === 'Not Found') {
+          throw new Error('Invalid country name!');
+        }
+        model.setData(data, 'total');
+      });
+  },
+
   requestWorldStatus() {
     if (!this.data?.allStatus) {
       const today = new Date();
@@ -122,7 +126,7 @@ const model = {
             const name = 'allStatus';
             model.setData(data, name);
           });
-      } catch (erroe) {
+      } catch (error) {
         throw new Error('Could not get data :(');
       }
     }
@@ -148,6 +152,9 @@ const model = {
   },
   getSummaryData() {
     return model?.data?.summary || [];
+  },
+  getTotalStatus() {
+    return model?.data?.total || [];
   },
   getDataByCountry(countryCode) {
     return (
