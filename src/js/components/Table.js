@@ -90,7 +90,9 @@ export default class Table extends BaseComponent {
 
   handleEvent = (event) => {
     const { target } = event;
-    if (target === this.periodCheck) {
+    if (target === this.resizeButton) {
+      this.fold();
+    } else if (target === this.periodCheck) {
       const check = this.periodCheck.checked;
       this.model.setState('period', check);
     } else if (target === this.absCheck) {
