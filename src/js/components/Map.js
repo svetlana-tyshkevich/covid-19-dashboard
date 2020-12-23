@@ -155,11 +155,13 @@ export default class WorldMap extends BaseComponent {
 
   flyToCountry = (target) => {
     const country = this.data.find((item) => item.countryInfo.iso2 === target);
-    this.map.flyTo({
-      center: [country.countryInfo.long, country.countryInfo.lat],
-      essential: true,
-      zoom: 3,
-    });
+    if (this.state.country !== 'global') {
+      this.map.flyTo({
+        center: [country.countryInfo.long, country.countryInfo.lat],
+        essential: true,
+        zoom: 3,
+      });
+    }
   };
 
   createCircleLayer = (target) => {
