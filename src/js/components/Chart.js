@@ -14,6 +14,7 @@ export default class ChartBoard extends BaseComponent {
     this.isStarted = false;
     this.isChartOn = false;
     this.isWaiting = false;
+    this.isLoading = false;
 
     this.model.listen(() => {
       const data = this.model.getWorldStatus();
@@ -125,6 +126,10 @@ export default class ChartBoard extends BaseComponent {
       series.fillOpacity = 0.5;
 
       this.chart.cursor.xAxis = dateAxis;
+
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 0);
     }, 0);
   }
 
@@ -158,20 +163,23 @@ export default class ChartBoard extends BaseComponent {
   }
 
   tabListener = (target) => {
-    let element;
-    if (typeof target === 'string') {
-      element = this.tabItems.find((el) => el.dataset.tab === target);
-    } else if (!target.closest('.active')) {
-      element = target;
+    if (!this.isLoading) {
+      this.isLoading = true;
+      let element;
+      if (typeof target === 'string') {
+        element = this.tabItems.find((el) => el.dataset.tab === target);
+      } else if (this.state.case !== target.dataset.tab) {
+        element = target;
+      }
+      setTimeout(() => {
+        this.updateChart(element.dataset.tab);
+        this.model.setState('case', element.dataset.tab);
+      }, 0);
+      this.tabItems.forEach((el) => {
+        el.classList.remove('active');
+      });
+      element.classList.add('active');
     }
-    setTimeout(() => {
-      this.updateChart(element.dataset.tab);
-      this.model.setState('case', element.dataset.tab);
-    }, 0);
-    this.tabItems.forEach((el) => {
-      el.classList.remove('active');
-    });
-    element.classList.add('active');
   }
 
   perTausend = (array) => {

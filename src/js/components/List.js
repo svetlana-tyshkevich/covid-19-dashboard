@@ -37,6 +37,7 @@ export default class List extends BaseComponent {
       }
     });
 
+    this.isLoading = false;
     this.isStarted = false;
   }
 
@@ -55,6 +56,9 @@ export default class List extends BaseComponent {
       const fullList = this.createListItems(this.sortedData, cases);
       fullList.forEach((el) => this.list.append(el));
       this.wrap.append(this.list);
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 0);
     }, 0);
   }
 
@@ -114,8 +118,8 @@ export default class List extends BaseComponent {
       this.fold();
     } else if (target?.dataset?.tab) {
       this.tabListener(target);
-    } else if (target?.dataset?.country) {
-      this.listListener(target);
+    } else if (target.closest('.list__item')) {
+      this.listListener(target.closest('.list__item'));
     } else if (target.dataset.arrow === 'left') {
       this.tabListener(prev);
     } else if (target.dataset.arrow === 'right') {
@@ -130,7 +134,7 @@ export default class List extends BaseComponent {
         let element;
         if (typeof target === 'string') {
           element = listItems.find((el) => el.dataset.country === target);
-        } else if (!target.closest('.active')) {
+        } else if (this.state.country !== target.dataset.country) {
           element = target;
           this.model.setState('country', element.dataset.country);
         }
@@ -143,30 +147,33 @@ export default class List extends BaseComponent {
   }
 
   tabListener = (target) => {
-    let element;
-    if (typeof target === 'string') {
-      element = this.tabItems.find((el) => el.dataset.tab === target);
-    } else if (!target.closest('.active')) {
-      element = target;
+    if (!this.isLoading) {
+      this.isLoading = true;
+      let element;
+      if (typeof target === 'string') {
+        element = this.tabItems.find((el) => el.dataset.tab === target);
+      } else if (typeof target === 'object') {
+        element = target;
+      }
+      this.model.setState('case', element.dataset.tab);
+      let newCases;
+      if (this.state.abs && this.state.period) {
+        newCases = `${this.createString('today', this.state.case)}Per100k`;
+        this.createList(newCases);
+      } else if (this.state.abs) {
+        newCases = `${this.state.case}Per100k`;
+        this.createList(newCases);
+      } else if (this.state.period) {
+        newCases = this.createString('today', this.state.case);
+        this.createList(newCases);
+      } else {
+        this.createList(this.state.case);
+      }
+      this.tabItems.forEach((el) => {
+        el.classList.remove('active');
+      });
+      element.classList.add('active');
     }
-    let newCases;
-    if (this.state.abs && this.state.period) {
-      newCases = `${this.createString('today', this.state.case)}Per100k`;
-      this.createList(newCases);
-    } else if (this.state.abs) {
-      newCases = `${this.state.case}Per100k`;
-      this.createList(newCases);
-    } else if (this.state.period) {
-      newCases = this.createString('today', this.state.case);
-      this.createList(newCases);
-    } else {
-      this.createList(this.state.case);
-    }
-    this.model.setState('case', element.dataset.tab);
-    this.tabItems.forEach((el) => {
-      el.classList.remove('active');
-    });
-    element.classList.add('active');
   }
 
   init = () => {

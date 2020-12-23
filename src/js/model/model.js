@@ -81,7 +81,7 @@ const model = {
                   const sum = (item / element.population) * per;
                   if (!(name in element)) {
                     // eslint-disable-next-line no-param-reassign
-                    element[name] = Math.trunc(sum);
+                    element[name] = sum.toFixed(2);
                   }
                 } else {
                   // eslint-disable-next-line no-param-reassign
