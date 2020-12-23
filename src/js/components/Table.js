@@ -10,22 +10,17 @@ export default class Table extends BaseComponent {
     this.isStarted = false;
 
     this.model.listen(() => {
-      let data = this.model.getSummaryData();
+      let data = this.model.getTotalStatus();
       if (!this.isStarted) {
         this.update(data);
       }
-
-      // const state = this.model.getState();
-      // if (!_.isEqual(this.state, state)) {
-      //   this.update();
-      // }
 
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
 
         if (stateCountryCode !== 'global') {
-          data = this.model.requestCountryStatus(stateCountryCode);
+          data = this.model.getDataByCountry(stateCountryCode);
           this.setState(state);
           this.update(data);
         } else {
@@ -40,14 +35,52 @@ export default class Table extends BaseComponent {
     this.tableDeaths = document.getElementById('table-deaths');
   }
 
- setTableInfo = () => {
-   // if (this.state.country === 'global') {
-   //   this.tableCaption.textContent = 'World';
-   console.log(this.data);
-   //   this.tableConfirmed.textContent = data.cases[dateItem];
-   //   this.tableRecovered.textContent = data.recovered;
-   //   this.tableDeaths.textContent = data.death;
-   // }
+ setTableInfo = (data) => {
+   if (this.state.country === 'global') {
+     this.tableCaption.textContent = 'World';
+     if (this.state.abs && this.state.period) {
+       this.tableConfirmed.textContent = ((data.todayCases / data.population) * 100000).toFixed(2);
+       this.tableRecovered.textContent = (
+         (data.todayRecovered / data.population)
+         * 100000
+       ).toFixed(2);
+       this.tableDeaths.textContent = (
+         (data.todayDeaths / data.population)
+         * 100000
+       ).toFixed(2);
+     } else if (this.state.abs && !this.state.period) {
+       this.tableConfirmed.textContent = data.casesPerOneMillion / 10;
+       this.tableRecovered.textContent = data.recoveredPerOneMillion / 10;
+       this.tableDeaths.textContent = data.deathsPerOneMillion / 10;
+     } else if (!this.state.abs && this.state.period) {
+       this.tableConfirmed.textContent = data.todayCases;
+       this.tableRecovered.textContent = data.todayRecovered;
+       this.tableDeaths.textContent = data.todayDeaths;
+     } else {
+       this.tableConfirmed.textContent = data.cases;
+       this.tableRecovered.textContent = data.recovered;
+       this.tableDeaths.textContent = data.deaths;
+     }
+   } else {
+     this.tableCaption.textContent = data.country;
+     if (this.state.abs && this.state.period) {
+       this.tableConfirmed.textContent = data.todayCasesPer100k;
+       this.tableRecovered.textContent = data.todayRecoveredPer100k;
+       this.tableDeaths.textContent = data.todayDeathsPer100k;
+     } else if (this.state.abs && !this.state.period) {
+       this.tableConfirmed.textContent = data.casesPer100k;
+       this.tableRecovered.textContent = data.recoveredPer100k;
+       this.tableDeaths.textContent = data.deathsPer100k;
+     } else if (!this.state.abs && this.state.period) {
+       this.tableConfirmed.textContent = data.todayCases;
+       this.tableRecovered.textContent = data.todayRecovered;
+       this.tableDeaths.textContent = data.todayDeaths;
+     } else {
+       this.tableConfirmed.textContent = data.cases;
+       this.tableRecovered.textContent = data.recovered;
+       this.tableDeaths.textContent = data.deaths;
+     }
+   }
  }
 
   update = (data) => {
@@ -56,9 +89,7 @@ export default class Table extends BaseComponent {
       this.init();
     }
     this.data = data;
-    console.log(this.data);
-    this.setTableInfo();
-    console.log(this.model.getTotalStatus());
+    this.setTableInfo(this.data);
   }
 
   handleEvent = (event) => {

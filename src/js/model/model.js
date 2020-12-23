@@ -109,7 +109,6 @@ const model = {
           throw new Error('Invalid country name!');
         }
         model.setData(data, 'total');
-        console.log(model.data.total);
       });
   },
 

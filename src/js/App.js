@@ -20,9 +20,9 @@ export default class App {
 
     this.table = new Table('table');
 
+    this.model.requestTotalStatus();
     this.model.requestSummaryData();
     this.model.requestWorldStatus();
-    this.model.requestTotalStatus();
   }
 
   append = () => this.element;
