@@ -17,10 +17,16 @@ export default class ChartBoard extends BaseComponent {
     this.isLoading = false;
 
     this.model.listen(() => {
-      const data = this.model.getWorldStatus();
       if (!this.isStarted) {
-        this.update(data);
+        const data = this.model.getWorldStatus();
+        if (!data || data.length === 0) {
+          this.isStarted = false;
+          this.model.requestWorldStatus();
+        } else {
+          this.update(data);
+        }
       }
+
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
@@ -36,6 +42,7 @@ export default class ChartBoard extends BaseComponent {
             this.update(timeline);
           }
         } else {
+          const data = this.model.getWorldStatus();
           this.setState(state);
           this.update(data);
         }

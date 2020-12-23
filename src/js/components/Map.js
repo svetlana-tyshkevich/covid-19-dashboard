@@ -153,16 +153,19 @@ export default class WorldMap extends BaseComponent {
   };
 
   flyToCountry = (target) => {
-    const country = this.data.find((item) => item.countryInfo.iso2 === target);
-    this.map.flyTo({
-      center: [country.countryInfo.long, country.countryInfo.lat],
-      essential: true,
-      zoom: 3,
-    });
+    if (target !== 'global') {
+      const country = this.data.find((item) => item.countryInfo.iso2 === target);
+      this.map.flyTo({
+        center: [country.countryInfo.long, country.countryInfo.lat],
+        essential: true,
+        zoom: 3,
+      });
+    } else {
+      this.map.zoomTo(0, { duration: 2000 });
+    }
   };
 
   createCircleLayer = (target) => {
-    console.log(this.map.getSource('countries'));
     let range;
     if (target === 'deaths') {
       range = [
