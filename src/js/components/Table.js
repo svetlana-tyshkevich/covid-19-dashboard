@@ -8,14 +8,19 @@ export default class Table extends BaseComponent {
     this.isStarted = false;
 
     this.model.listen(() => {
-      let data = this.model.getTotalStatus();
       if (!this.isStarted) {
-        this.update(data);
+        const data = this.model.getTotalStatus();
+        if (!data || data.length === 0) {
+          this.isStarted = false;
+          this.model.requestTotalStatus();
+        } else {
+          this.update(data);
+        }
       }
-
       const state = this.model.getState();
       if (!_.isEqual(this.state, state)) {
         const stateCountryCode = state.country;
+        let data = this.model.getTotalStatus();
 
         if (stateCountryCode !== 'global') {
           data = this.model.getDataByCountry(stateCountryCode);

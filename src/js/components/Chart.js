@@ -22,8 +22,9 @@ export default class ChartBoard extends BaseComponent {
         if (!data || data.length === 0) {
           this.isStarted = false;
           this.model.requestWorldStatus();
+        } else {
+          this.update(data);
         }
-        this.update(data);
       }
 
       const state = this.model.getState();
