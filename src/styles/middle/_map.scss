@@ -6,6 +6,12 @@
   background: $second-black;
   border: 1px solid $white-transp;
   color: $dark-gray;
+
+  & .tabs {
+    bottom: auto;
+    top: 0;
+    color: $white;
+  }
 }
 
 #mapBox {
@@ -44,7 +50,7 @@
   height: 150px;
   margin-bottom: 40px;
   width: 140px;
-  z-index: 10;
+  z-index: 5;
 }
 
 .legend-key {
