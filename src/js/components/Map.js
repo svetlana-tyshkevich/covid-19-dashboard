@@ -49,8 +49,6 @@ export default class WorldMap extends BaseComponent {
         }),
       };
 
-      console.log(geoJson);
-
       map.addSource('countries', {
         type: 'geojson',
         data: geoJson,
